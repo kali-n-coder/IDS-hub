@@ -627,6 +627,7 @@
       <a href="#tools">ツール</a>
       <a href="#about">特徴</a>
       <a href="#news">お知らせ</a>
+      <a href="admin.html">管理</a>
       <button class="ghost-button" type="button" data-auth-open="login">
         <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path></svg>
         ログイン
@@ -835,6 +836,8 @@
       getDoc,
       setDoc,
       updateDoc,
+      collection,
+      getDocs,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -849,7 +852,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const cards = [...document.querySelectorAll(".card")];
+    const toolGrid = document.querySelector("#toolGrid");
+    let cards = [...document.querySelectorAll(".card")];
     const filterButtons = [...document.querySelectorAll("[data-filter]")];
     const searchInput = document.querySelector("#searchInput");
     const emptyState = document.querySelector("#emptyState");
@@ -865,14 +869,15 @@
     let authMode = "login";
     let currentUser = null;
 
-    const toolUrls = {
-      "JSON Formatter": "https://jsonformatter.org/",
-      "QR Code Maker": "https://www.qr-code-generator.com/",
-      "Base64 Converter": "https://www.base64decode.org/",
-      "Typing Sprint": "https://monkeytype.com/",
-      "Logic Blocks": "https://www.puzzle-nurikabe.com/",
-      "Quick Memo": "https://keep.google.com/"
-    };
+    let toolUrls = {};
+    const fallbackTools = [
+      { name: "JSON Formatter", description: "JSONの整形、圧縮、簡易バリデーションを行うツールです。", category: "tool dev", label: "開発ツール", url: "https://jsonformatter.org/", color: "blue", keywords: "json formatter validate api" },
+      { name: "QR Code Maker", description: "URLやテキストをQRコード化して、スマホ共有を簡単にします。", category: "tool utility", label: "日常ツール", url: "https://www.qr-code-generator.com/", color: "green", keywords: "qr code url share" },
+      { name: "Base64 Converter", description: "文字列のBase64エンコード、デコードをブラウザで確認できます。", category: "tool dev", label: "開発ツール", url: "https://www.base64decode.org/", color: "dark", keywords: "base64 encode decode text" },
+      { name: "Typing Sprint", description: "短時間で遊べるタイピングゲーム。スコア保存にも拡張できます。", category: "game", label: "ゲーム", url: "https://monkeytype.com/", color: "yellow", keywords: "typing game speed" },
+      { name: "Logic Blocks", description: "手軽に遊べるロジックパズル。ランキング要素を追加しやすい枠です。", category: "game", label: "ゲーム", url: "https://www.puzzle-nurikabe.com/", color: "red", keywords: "puzzle logic block" },
+      { name: "Quick Memo", description: "ブラウザ上でメモを作成し、あとでクラウド保存に対応する想定です。", category: "tool utility", label: "日常ツール", url: "https://keep.google.com/", color: "green", keywords: "memo note template" }
+    ];
 
     function showToast(message) {
       toast.textContent = message;
@@ -922,6 +927,59 @@
       emptyState.classList.toggle("visible", visible === 0);
     }
 
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function renderTools(tools) {
+      toolUrls = {};
+      toolGrid.innerHTML = tools.map((tool) => {
+        const color = ["green", "yellow", "red", "dark"].includes(tool.color) ? tool.color : "";
+        toolUrls[tool.name] = tool.url || "#";
+
+        return `
+          <article class="card locked" data-category="${escapeHtml(tool.category)}" data-keywords="${escapeHtml(tool.keywords || "")}">
+            <div class="card-top">
+              <div class="tool-icon ${escapeHtml(color)}">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"></path><path d="M8 9h8"></path><path d="M8 13h5"></path></svg>
+              </div>
+              <span class="badge">${escapeHtml(tool.label || "ツール")}</span>
+            </div>
+            <h3>${escapeHtml(tool.name)}</h3>
+            <p>${escapeHtml(tool.description)}</p>
+            <button class="primary-button" type="button" data-requires-login>開く</button>
+          </article>
+        `;
+      }).join("");
+
+      cards = [...document.querySelectorAll(".card")];
+      bindToolButtons();
+      if (currentUser) {
+        document.querySelectorAll(".card.locked").forEach((card) => card.classList.remove("locked"));
+      }
+      applyFilters();
+    }
+
+    async function loadTools() {
+      try {
+        const snapshot = await getDocs(collection(db, "tools"));
+        const tools = snapshot.docs
+          .map((item) => ({ id: item.id, ...item.data() }))
+          .filter((tool) => tool.enabled !== false)
+          .sort((a, b) => Number(a.order || 999) - Number(b.order || 999));
+        renderTools(tools.length ? tools : fallbackTools);
+      } catch (error) {
+        console.warn("Failed to load tools, using fallback tools.", error);
+        renderTools(fallbackTools);
+      }
+    }
+
     function normalizeEmail(email) {
       return String(email).trim().toLowerCase();
     }
@@ -969,6 +1027,7 @@
         email,
         passwordBase64: toBase64(password),
         enabled: true,
+        role: "user",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         lastLoginAt: serverTimestamp()
@@ -1013,18 +1072,20 @@
       button.addEventListener("click", () => openModal(button.dataset.authOpen));
     });
 
-    document.querySelectorAll("[data-requires-login]").forEach((button) => {
-      button.addEventListener("click", () => {
-        if (!currentUser) {
-          showToast("このコンテンツを使うにはログインが必要です。");
-          openModal("login");
-          return;
-        }
+    function bindToolButtons() {
+      document.querySelectorAll("[data-requires-login]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (!currentUser) {
+            showToast("このコンテンツを使うにはログインが必要です。");
+            openModal("login");
+            return;
+          }
 
-        const title = button.closest(".card").querySelector("h3").textContent.trim();
-        window.open(toolUrls[title] || "#", "_blank", "noopener,noreferrer");
+          const title = button.closest(".card").querySelector("h3").textContent.trim();
+          window.open(toolUrls[title] || "#", "_blank", "noopener,noreferrer");
+        });
       });
-    });
+    }
 
     document.querySelector("#closeModal").addEventListener("click", closeModal);
     modal.addEventListener("click", (event) => {
@@ -1067,6 +1128,7 @@
     });
 
     setAuthMode("login");
+    loadTools();
     const savedUser = sessionStorage.getItem("idsHubUser") || sessionStorage.getItem("idmHubUser");
     if (savedUser) {
       setLoggedIn(JSON.parse(savedUser));

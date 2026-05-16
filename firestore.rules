@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{email} {
-      allow list: if false;
+      allow list: if true;
 
       allow get: if true;
 
@@ -12,22 +12,26 @@ service cloud.firestore {
           'email',
           'passwordBase64',
           'enabled',
+          'role',
           'createdAt',
           'updatedAt',
           'lastLoginAt'
         ])
         && request.resource.data.email == email
         && request.resource.data.enabled == true
+        && request.resource.data.role in ['user', 'admin']
         && request.resource.data.name is string
         && request.resource.data.passwordBase64 is string
         && request.resource.data.passwordBase64.size() >= 8;
 
-      allow update: if request.resource.data.diff(resource.data).changedKeys().hasOnly([
-          'lastLoginAt',
-          'updatedAt'
-        ]);
+      allow update: if true;
 
-      allow delete: if false;
+      allow delete: if true;
+    }
+
+    match /tools/{toolId} {
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
     match /{document=**} {

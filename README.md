@@ -5,6 +5,7 @@
 ## Files
 
 - `index.html`: Firebase HostingとFirestoreに接続済みの公開ページ
+- `admin.html`: ユーザーとツールを管理する画面
 - `firestore.rules`: Firestoreのセキュリティルール
 - `FIREBASE_SETUP.md`: Firestore連携、GitHub Pages、Firebase Hostingの設定メモ
 
@@ -13,8 +14,9 @@
 - 一般公開サービス向けのトップページ
 - Firestoreを使ったアカウント登録・ログイン
 - 未ログイン時のコンテンツロック
-- ツール、ゲームの検索とカテゴリフィルター
+- Firestore上のツール、ゲームの検索とカテゴリフィルター
 - ログイン後の外部ツールリンク遷移
+- 管理画面からのユーザー管理、ツール管理
 
 ## Deploy
 
@@ -32,4 +34,10 @@ URL:
 
 ```text
 https://idm-hub-20260516.web.app
+```
+
+Admin:
+
+```text
+https://idm-hub-20260516.web.app/admin
 ```

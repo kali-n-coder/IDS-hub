@@ -28,6 +28,12 @@ firestore.rules
 https://idm-hub-20260516.web.app
 ```
 
+管理画面:
+
+```text
+https://idm-hub-20260516.web.app/admin
+```
+
 ## 前提
 
 - Firebase Authenticationは使わない
@@ -62,6 +68,22 @@ users
   createdAt: serverTimestamp(),
   updatedAt: serverTimestamp(),
   lastLoginAt: serverTimestamp()
+}
+```
+
+ツールは `tools` コレクションで管理します。管理画面から追加・編集・停止・削除できます。
+
+```js
+{
+  name: "JSON Formatter",
+  description: "JSONの整形、圧縮、簡易バリデーションを行うツールです。",
+  url: "https://jsonformatter.org/",
+  category: "tool dev",
+  label: "開発ツール",
+  color: "dark",
+  enabled: true,
+  order: 1,
+  updatedAt: serverTimestamp()
 }
 ```
 
@@ -169,7 +191,7 @@ async function login({ email, password }) {
 firebase deploy --only firestore:rules --project idm-hub-20260516
 ```
 
-現在のルールでは、ユーザー一覧取得は拒否し、メールアドレスを指定した単体取得と登録に必要な作成だけを許可しています。ただしFirebase Authenticationなしでは完全な本人判定はできないため、将来的にはCloud Functionsや独自API経由に寄せることを推奨します。
+管理画面追加に伴い、現在のルールではブラウザから `users` と `tools` の管理操作ができるようにしています。Firebase AuthenticationなしではFirestore Rulesだけで管理者本人を安全に判定できないため、この構成はプロトタイプ用途です。本番運用前に、管理操作はCloud Functionsなどサーバー側に移してください。
 
 ## Firebase Hosting
 
