@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>タイピングゲーム | IDS Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --ink: #132033;
+      --muted: #66758a;
+      --panel: #fff;
+      --line: #dce4ee;
+      --brand: #0969da;
+      --brand-dark: #044da4;
+      --green: #00876f;
+      --yellow: #d98900;
+      --red: #d64562;
+      --dark: #172232;
+      --shadow: 0 20px 55px rgba(24, 39, 58, .14);
+      --radius: 8px;
+      font-family: "Inter", "Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(9, 105, 218, .12), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(0, 135, 111, .11), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px clamp(16px, 4vw, 42px);
+      border-bottom: 1px solid rgba(220, 228, 238, .9);
+      background: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand, .back-link, .ghost-button, .primary-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand { gap: 12px; min-width: 0; }
+
+    .brand-mark {
+      width: 54px;
+      height: 40px;
+      border-radius: var(--radius);
+      display: block;
+      object-fit: contain;
+      background: #fff;
+      padding: 4px;
+      box-shadow: 0 12px 26px rgba(9, 105, 218, .22);
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .back-link, .ghost-button, .primary-button {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: var(--radius);
+    }
+
+    .back-link, .ghost-button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .primary-button {
+      border: 0;
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 28px clamp(14px, 4vw, 42px) 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(340px, 1.1fr);
+      gap: 0;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .34), rgba(0, 135, 111, .16)),
+        #101b2d;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      padding: clamp(28px, 5vw, 54px);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: #89e3d3;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p:not(.eyebrow) {
+      margin: 0;
+      color: #d7e2ef;
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    .game-panel {
+      margin: clamp(14px, 3vw, 24px);
+      padding: clamp(18px, 3vw, 28px);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 24px 50px rgba(0,0,0,.16);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    select {
+      min-height: 42px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 0 10px;
+      font-weight: 800;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .stat {
+      min-height: 76px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f7faff;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: clamp(20px, 4vw, 30px);
+      line-height: 1.1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .prompt-card {
+      display: grid;
+      gap: 12px;
+      min-height: 150px;
+      padding: clamp(16px, 3vw, 24px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .prompt-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .prompt {
+      min-height: 58px;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.35;
+      font-weight: 900;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .typed-ok { color: var(--green); }
+    .typed-current { color: var(--brand); text-decoration: underline; text-underline-offset: 8px; }
+    .typed-error { color: var(--red); }
+    .typed-rest { color: #9aa8b8; }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    #typingInput {
+      min-height: 54px;
+      width: 100%;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 0 14px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    #typingInput:focus {
+      outline: 3px solid rgba(9,105,218,.18);
+      border-color: var(--brand);
+    }
+
+    .message {
+      min-height: 24px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .best {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: #eef7f5;
+      color: #075a4c;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .word-bank {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .word-bank span {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      .controls, .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .word-bank { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .back-link { width: 100%; justify-content: center; }
+      .controls, .stats, .input-row { grid-template-columns: 1fr; }
+      .game-panel { margin: 0; border-radius: 0; }
+      main { padding-left: 0; padding-right: 0; }
+      .hero { border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">
+      <img class="brand-mark" src="../assets/ids-logo.png" alt="IDS">
+      <span>IDS Hub<br>Tools and Games</span>
+    </a>
+    <a class="back-link" href="../index.html">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
+      Hubへ戻る
+    </a>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="pageTitle">
+      <div class="hero-copy">
+        <p class="eyebrow">Typing Sprint</p>
+        <h1 id="pageTitle">タイピングゲーム</h1>
+        <p>日本語と英語の短いプロンプトで、60秒集中。時間、出題リスト、成績をその場で切り替えられます。</p>
+      </div>
+
+      <div class="game-panel">
+        <div class="controls">
+          <div class="field">
+            <label for="durationSelect">時間</label>
+            <select id="durationSelect">
+              <option value="30">30秒</option>
+              <option value="60" selected>60秒</option>
+              <option value="90">90秒</option>
+              <option value="120">120秒</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="modeSelect">リスト</label>
+            <select id="modeSelect">
+              <option value="mixed" selected>日本語 + English</option>
+              <option value="ja">日本語</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="orderSelect">順番</label>
+            <select id="orderSelect">
+              <option value="random" selected>ランダム</option>
+              <option value="loop">順番に出題</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="stats" aria-live="polite">
+          <div class="stat"><strong id="timeLeft">60</strong><span>残り秒数</span></div>
+          <div class="stat"><strong id="wpm">0</strong><span>WPM</span></div>
+          <div class="stat"><strong id="accuracy">100%</strong><span>正確性</span></div>
+          <div class="stat"><strong id="cleared">0</strong><span>クリア</span></div>
+          <div class="stat"><strong id="mistakes">0</strong><span>ミス</span></div>
+        </div>
+
+        <div class="prompt-card">
+          <div class="prompt-label">現在のお題</div>
+          <div class="prompt" id="promptText"></div>
+        </div>
+
+        <div class="input-row">
+          <input id="typingInput" type="text" autocomplete="off" spellcheck="false" placeholder="ここに入力してスタート">
+          <button class="primary-button" id="restartButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+            Restart
+          </button>
+        </div>
+        <p class="message" id="message">入力を始めるとタイマーが動きます。</p>
+        <div class="best" id="bestScore">Best: まだ記録がありません。</div>
+      </div>
+    </section>
+
+    <div class="word-bank" aria-label="出題例">
+      <span>静かな集中</span>
+      <span>Small steps win</span>
+      <span>今日の一歩</span>
+      <span>Design with care</span>
+    </div>
+  </main>
+
+  <script>
+    const prompts = {
+      ja: [
+        "静かな集中", "今日の一歩", "早起きは三文の徳", "小さな改善を続ける", "未来は手元から始まる",
+        "丁寧な仕事が信頼を作る", "読みやすい文章を書く", "深呼吸してから進む", "学びを形にする", "余白を大切にする",
+        "速さより正確さ", "よい習慣は味方になる", "目標を短く区切る", "画面の先に人がいる", "楽しく試してみる"
+      ],
+      en: [
+        "Small steps win", "Design with care", "Focus and flow", "Build the better habit", "Clear code calm mind",
+        "Practice makes progress", "Ship a useful thing", "Kind words travel far", "Measure twice type once",
+        "Start simple stay curious", "Make time visible", "Good tools reduce friction", "Create with intent",
+        "One page one purpose", "Finish with confidence"
+      ]
+    };
+
+    const durationSelect = document.querySelector("#durationSelect");
+    const modeSelect = document.querySelector("#modeSelect");
+    const orderSelect = document.querySelector("#orderSelect");
+    const input = document.querySelector("#typingInput");
+    const restartButton = document.querySelector("#restartButton");
+    const promptText = document.querySelector("#promptText");
+    const message = document.querySelector("#message");
+    const timeLeftEl = document.querySelector("#timeLeft");
+    const wpmEl = document.querySelector("#wpm");
+    const accuracyEl = document.querySelector("#accuracy");
+    const clearedEl = document.querySelector("#cleared");
+    const mistakesEl = document.querySelector("#mistakes");
+    const bestScoreEl = document.querySelector("#bestScore");
+
+    let current = "";
+    let promptIndex = 0;
+    let startedAt = 0;
+    let timer = null;
+    let timeLeft = Number(durationSelect.value);
+    let attemptedChars = 0;
+    let completedChars = 0;
+    let currentCorrectChars = 0;
+    let mistakeCount = 0;
+    let clearedCount = 0;
+    let running = false;
+    let finished = false;
+    let lastValue = "";
+
+    function list() {
+      if (modeSelect.value === "mixed") return [...prompts.ja, ...prompts.en];
+      return prompts[modeSelect.value];
+    }
+
+    function choosePrompt() {
+      const source = list();
+      if (orderSelect.value === "loop") {
+        current = source[promptIndex % source.length];
+        promptIndex += 1;
+      } else {
+        current = source[Math.floor(Math.random() * source.length)];
+      }
+      renderPrompt();
+    }
+
+    function renderPrompt() {
+      const value = input.value;
+      const ok = current.slice(0, value.length) === value;
+      const prefixLength = ok ? value.length : commonPrefixLength(current, value);
+      const typed = escapeHtml(current.slice(0, prefixLength));
+      const active = escapeHtml(current.charAt(prefixLength));
+      const rest = escapeHtml(current.slice(prefixLength + 1));
+      const activeClass = ok ? "typed-current" : "typed-current typed-error";
+      promptText.innerHTML = `${typed ? `<span class="typed-ok">${typed}</span>` : ""}${active ? `<span class="${activeClass}">${active}</span>` : ""}<span class="typed-rest">${rest}</span>`;
+      input.style.borderColor = ok ? "var(--line)" : "var(--red)";
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[char]));
+    }
+
+    function start() {
+      if (running || finished) return;
+      running = true;
+      startedAt = Date.now();
+      message.textContent = "いい調子です。お題を入力し終えたら自動で次へ進みます。";
+      timer = setInterval(tick, 250);
+    }
+
+    function tick() {
+      const duration = Number(durationSelect.value);
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      timeLeft = Math.max(0, duration - elapsed);
+      timeLeftEl.textContent = String(timeLeft);
+      updateStats();
+      if (timeLeft <= 0) finish();
+    }
+
+    function updateStats() {
+      const elapsedMinutes = running ? Math.max((Date.now() - startedAt) / 60000, 1 / 60) : 1 / 60;
+      const correctChars = completedChars + currentCorrectChars;
+      const words = correctChars / 5;
+      const wpm = Math.round(words / elapsedMinutes);
+      const accuracy = attemptedChars === 0 ? 100 : Math.max(0, Math.round((correctChars / attemptedChars) * 100));
+      wpmEl.textContent = String(wpm);
+      accuracyEl.textContent = `${accuracy}%`;
+      clearedEl.textContent = String(clearedCount);
+      mistakesEl.textContent = String(mistakeCount);
+      return { wpm, accuracy };
+    }
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      running = false;
+      clearInterval(timer);
+      input.disabled = true;
+      const result = updateStats();
+      const bestKey = `idsTypingBest:${durationSelect.value}:${modeSelect.value}`;
+      const oldBest = JSON.parse(localStorage.getItem(bestKey) || "null");
+      const best = !oldBest || result.wpm > oldBest.wpm || (result.wpm === oldBest.wpm && result.accuracy > oldBest.accuracy)
+        ? { ...result, cleared: clearedCount, mistakes: mistakeCount, date: new Date().toLocaleDateString("ja-JP") }
+        : oldBest;
+      localStorage.setItem(bestKey, JSON.stringify(best));
+      message.textContent = `終了です。WPM ${result.wpm}、正確性 ${result.accuracy}%、クリア ${clearedCount} 件。`;
+      renderBest();
+    }
+
+    function resetGame() {
+      clearInterval(timer);
+      current = "";
+      startedAt = 0;
+      timeLeft = Number(durationSelect.value);
+      attemptedChars = 0;
+      completedChars = 0;
+      currentCorrectChars = 0;
+      mistakeCount = 0;
+      clearedCount = 0;
+      lastValue = "";
+      running = false;
+      finished = false;
+      input.value = "";
+      input.disabled = false;
+      timeLeftEl.textContent = String(timeLeft);
+      message.textContent = "入力を始めるとタイマーが動きます。";
+      updateStats();
+      choosePrompt();
+      renderBest();
+      input.focus();
+    }
+
+    function renderBest() {
+      const bestKey = `idsTypingBest:${durationSelect.value}:${modeSelect.value}`;
+      const best = JSON.parse(localStorage.getItem(bestKey) || "null");
+      bestScoreEl.textContent = best
+        ? `Best: WPM ${best.wpm} / 正確性 ${best.accuracy}% / ${best.cleared}件 (${best.date})`
+        : "Best: まだ記録がありません。";
+    }
+
+    input.addEventListener("input", () => {
+      start();
+      const value = input.value;
+      const addedChars = Math.max(0, value.length - lastValue.length);
+      attemptedChars += addedChars;
+      if (current.startsWith(value)) {
+        currentCorrectChars = value.length;
+        if (value === current) {
+          clearedCount += 1;
+          completedChars += current.length;
+          currentCorrectChars = 0;
+          input.value = "";
+          lastValue = "";
+          choosePrompt();
+        }
+      } else {
+        currentCorrectChars = commonPrefixLength(current, value);
+        mistakeCount += 1;
+      }
+      lastValue = input.value;
+      renderPrompt();
+      updateStats();
+    });
+
+    function commonPrefixLength(a, b) {
+      let count = 0;
+      while (count < a.length && count < b.length && a[count] === b[count]) count += 1;
+      return count;
+    }
+
+    [durationSelect, modeSelect, orderSelect].forEach((control) => control.addEventListener("change", resetGame));
+    restartButton.addEventListener("click", resetGame);
+    resetGame();
+  </script>
+</body>
+</html>

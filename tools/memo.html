@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>メモ帳・一時保存ツール | IDS Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --ink: #132033;
+      --muted: #66758a;
+      --panel: #fff;
+      --soft: #eef4fb;
+      --line: #dce4ee;
+      --brand: #0969da;
+      --brand-dark: #044da4;
+      --green: #00876f;
+      --yellow: #d98900;
+      --red: #d64562;
+      --dark: #172232;
+      --shadow: 0 20px 55px rgba(24, 39, 58, .14);
+      --radius: 8px;
+      font-family: "Inter", "Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(9, 105, 218, .12), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(0, 135, 111, .11), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px clamp(16px, 4vw, 42px);
+      border-bottom: 1px solid rgba(220, 228, 238, .9);
+      background: rgba(255, 255, 255, .9);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand, .back-link, .button, .icon-button {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .brand {
+      gap: 12px;
+      min-width: 0;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 54px;
+      height: 40px;
+      display: block;
+      flex: 0 0 auto;
+      object-fit: contain;
+      padding: 4px;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 12px 26px rgba(9, 105, 218, .22);
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .back-link {
+      min-height: 40px;
+      gap: 8px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 28px clamp(14px, 4vw, 42px) 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: end;
+      padding: clamp(26px, 5vw, 46px);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .34), rgba(0, 135, 111, .16)),
+        #101b2d;
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #89e3d3;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .hero p:not(.eyebrow) {
+      margin: 16px 0 0;
+      max-width: 680px;
+      color: #d7e2ef;
+      line-height: 1.85;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 112px);
+      gap: 10px;
+    }
+
+    .stat {
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.08);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+    }
+
+    .stat span {
+      color: #c4d4e4;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 12px 30px rgba(24, 39, 58, .08);
+    }
+
+    .sidebar {
+      min-height: 620px;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap .icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: rgba(9,105,218,.62);
+      box-shadow: 0 0 0 4px rgba(9,105,218,.12);
+    }
+
+    .search-input {
+      min-height: 42px;
+      padding: 0 12px 0 38px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .button {
+      justify-content: center;
+      min-height: 42px;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .button.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .button.danger {
+      border-color: rgba(214, 69, 98, .35);
+      color: var(--red);
+    }
+
+    .note-list {
+      display: grid;
+      gap: 8px;
+      max-height: 524px;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    .note-item {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: inherit;
+      text-align: left;
+    }
+
+    .note-item[aria-current="true"] {
+      border-color: rgba(9,105,218,.58);
+      background: #eef6ff;
+      box-shadow: inset 4px 0 0 var(--brand);
+    }
+
+    .note-title {
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .note-preview {
+      grid-column: 1 / -1;
+      margin: 0;
+      display: -webkit-box;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .note-meta {
+      grid-column: 1 / -1;
+      color: #8190a4;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pin {
+      color: var(--yellow);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .editor {
+      display: grid;
+      min-height: 620px;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+    }
+
+    .editor-head {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .title-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .title-input {
+      min-height: 48px;
+      padding: 0 14px;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .icon-button.active {
+      border-color: rgba(217,137,0,.45);
+      background: #fff7df;
+      color: var(--yellow);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .body-input {
+      min-height: 100%;
+      resize: none;
+      padding: 18px;
+      border: 0;
+      border-radius: 0;
+      font-size: 16px;
+      line-height: 1.85;
+      box-shadow: none;
+    }
+
+    .body-input:focus {
+      box-shadow: inset 0 0 0 2px rgba(9,105,218,.22);
+    }
+
+    .editor-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .empty {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.75;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 20;
+      max-width: min(360px, calc(100vw - 36px));
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: var(--dark);
+      color: #fff;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: .2s ease;
+      pointer-events: none;
+      font-weight: 800;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      .hero, .workspace { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .sidebar, .editor { min-height: auto; }
+      .note-list { max-height: 320px; }
+      .body-input { min-height: 380px; }
+    }
+
+    @media (max-width: 620px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .back-link { width: 100%; justify-content: center; }
+      .hero { padding: 24px; }
+      .stats { grid-template-columns: 1fr; }
+      .title-line { grid-template-columns: 1fr auto; }
+      .title-input { grid-column: 1 / -1; font-size: 19px; }
+      .button-row { grid-template-columns: 1fr; }
+      .editor-foot { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html" aria-label="IDS Hubへ戻る">
+      <img class="brand-mark" src="../assets/ids-logo.png" alt="IDS">
+      <span>IDS Hub<br>Tools and Games</span>
+    </a>
+    <a class="back-link" href="../index.html">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      Hubへ戻る
+    </a>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">Temporary Notes</p>
+        <h1 id="pageTitle">メモ帳・一時保存ツール</h1>
+        <p>ブラウザ内に保存される軽量メモ帳です。思いついたこと、作業ログ、あとで使う文章をすばやく残せます。</p>
+      </div>
+      <div class="stats" aria-label="メモの状態">
+        <div class="stat"><strong id="totalCount">0</strong><span>メモ</span></div>
+        <div class="stat"><strong id="pinnedCount">0</strong><span>固定中</span></div>
+        <div class="stat"><strong id="charCount">0</strong><span>文字</span></div>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="メモ編集エリア">
+      <aside class="panel sidebar">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <input class="search-input" id="searchInput" type="search" placeholder="メモを検索" autocomplete="off">
+          </div>
+          <div class="button-row">
+            <button class="button primary" id="newButton" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+              新規メモ
+            </button>
+            <button class="button" id="exportButton" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+              書き出し
+            </button>
+          </div>
+        </div>
+        <div class="note-list" id="noteList" aria-live="polite"></div>
+      </aside>
+
+      <section class="panel editor" aria-label="選択中のメモ">
+        <div class="editor-head">
+          <div class="title-line">
+            <input class="title-input" id="titleInput" type="text" placeholder="タイトル">
+            <button class="icon-button" id="pinButton" type="button" title="固定">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6"></path><path d="M9 9 4 14l6 6 5-5 4 1-11-11 1 4Z"></path></svg>
+            </button>
+            <button class="icon-button" id="deleteButton" type="button" title="削除">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m10 11 .5 6"></path><path d="m14 11-.5 6"></path><path d="M6 6l1 15h10l1-15"></path></svg>
+            </button>
+          </div>
+          <div class="meta-row">
+            <span id="savedLabel">保存済み</span>
+            <span id="updatedLabel">更新日時 -</span>
+          </div>
+        </div>
+        <textarea class="body-input" id="bodyInput" placeholder="ここにメモを書きます。入力内容は自動保存されます。"></textarea>
+        <div class="editor-foot">
+          <span>この端末のブラウザに保存されます。</span>
+          <span id="currentStats">0 文字 / 0 行</span>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const storageKey = "idsHubMemoNotes";
+    const noteList = document.querySelector("#noteList");
+    const titleInput = document.querySelector("#titleInput");
+    const bodyInput = document.querySelector("#bodyInput");
+    const searchInput = document.querySelector("#searchInput");
+    const pinButton = document.querySelector("#pinButton");
+    const deleteButton = document.querySelector("#deleteButton");
+    const newButton = document.querySelector("#newButton");
+    const exportButton = document.querySelector("#exportButton");
+    const totalCount = document.querySelector("#totalCount");
+    const pinnedCount = document.querySelector("#pinnedCount");
+    const charCount = document.querySelector("#charCount");
+    const savedLabel = document.querySelector("#savedLabel");
+    const updatedLabel = document.querySelector("#updatedLabel");
+    const currentStats = document.querySelector("#currentStats");
+    const toast = document.querySelector("#toast");
+
+    let notes = loadNotes();
+    let activeId = notes[0]?.id || null;
+    let saveTimer = null;
+
+    function uid() {
+      return `note-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function loadNotes() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function persist() {
+      localStorage.setItem(storageKey, JSON.stringify(notes));
+    }
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      return new Intl.DateTimeFormat("ja-JP", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date(value));
+    }
+
+    function sortNotes(items) {
+      return [...items].sort((a, b) => {
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
+      });
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function createNote() {
+      const note = {
+        id: uid(),
+        title: "無題のメモ",
+        body: "",
+        pinned: false,
+        createdAt: nowIso(),
+        updatedAt: nowIso()
+      };
+      notes.unshift(note);
+      activeId = note.id;
+      persist();
+      render();
+      titleInput.focus();
+      titleInput.select();
+      showToast("新しいメモを作成しました");
+    }
+
+    function activeNote() {
+      return notes.find((note) => note.id === activeId) || null;
+    }
+
+    function filteredNotes() {
+      const query = searchInput.value.trim().toLowerCase();
+      const items = sortNotes(notes);
+      if (!query) return items;
+      return items.filter((note) => `${note.title} ${note.body}`.toLowerCase().includes(query));
+    }
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function renderList() {
+      const items = filteredNotes();
+      if (!items.length) {
+        noteList.innerHTML = `<div class="empty">${notes.length ? "該当するメモがありません。" : "まだメモがありません。新規メモから始めましょう。"}</div>`;
+        return;
+      }
+
+      noteList.innerHTML = items.map((note) => {
+        const title = note.title.trim() || "無題のメモ";
+        const preview = note.body.trim() || "本文なし";
+        return `
+          <button class="note-item" type="button" data-id="${note.id}" aria-current="${note.id === activeId}">
+            <h2 class="note-title">${escapeHtml(title)}</h2>
+            <span class="pin" aria-label="${note.pinned ? "固定中" : ""}">${note.pinned ? "★" : ""}</span>
+            <p class="note-preview">${escapeHtml(preview)}</p>
+            <span class="note-meta">${formatDate(note.updatedAt)}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderEditor() {
+      const note = activeNote();
+      const disabled = !note;
+      titleInput.disabled = disabled;
+      bodyInput.disabled = disabled;
+      pinButton.disabled = disabled;
+      deleteButton.disabled = disabled;
+
+      if (!note) {
+        titleInput.value = "";
+        bodyInput.value = "";
+        pinButton.classList.remove("active");
+        savedLabel.textContent = "保存済み";
+        updatedLabel.textContent = "更新日時 -";
+        currentStats.textContent = "0 文字 / 0 行";
+        return;
+      }
+
+      titleInput.value = note.title;
+      bodyInput.value = note.body;
+      pinButton.classList.toggle("active", note.pinned);
+      pinButton.setAttribute("aria-pressed", String(note.pinned));
+      savedLabel.textContent = "保存済み";
+      updatedLabel.textContent = `更新日時 ${formatDate(note.updatedAt)}`;
+      updateCurrentStats();
+    }
+
+    function renderStats() {
+      totalCount.textContent = String(notes.length);
+      pinnedCount.textContent = String(notes.filter((note) => note.pinned).length);
+      charCount.textContent = String(notes.reduce((sum, note) => sum + note.body.length + note.title.length, 0));
+    }
+
+    function render() {
+      if (!activeId && notes.length) activeId = sortNotes(notes)[0].id;
+      renderList();
+      renderEditor();
+      renderStats();
+    }
+
+    function queueSave() {
+      const note = activeNote();
+      if (!note) return;
+      note.title = titleInput.value;
+      note.body = bodyInput.value;
+      note.updatedAt = nowIso();
+      savedLabel.textContent = "保存中...";
+      updateCurrentStats();
+      renderStats();
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        persist();
+        savedLabel.textContent = "保存済み";
+        updatedLabel.textContent = `更新日時 ${formatDate(note.updatedAt)}`;
+        renderList();
+      }, 260);
+    }
+
+    function updateCurrentStats() {
+      const body = bodyInput.value;
+      const lines = body ? body.split(/\r\n|\r|\n/).length : 0;
+      currentStats.textContent = `${body.length} 文字 / ${lines} 行`;
+    }
+
+    function deleteActiveNote() {
+      const note = activeNote();
+      if (!note) return;
+      const title = note.title.trim() || "無題のメモ";
+      if (!confirm(`「${title}」を削除しますか？`)) return;
+      notes = notes.filter((item) => item.id !== note.id);
+      activeId = sortNotes(notes)[0]?.id || null;
+      persist();
+      render();
+      showToast("メモを削除しました");
+    }
+
+    function togglePin() {
+      const note = activeNote();
+      if (!note) return;
+      note.pinned = !note.pinned;
+      note.updatedAt = nowIso();
+      persist();
+      render();
+      showToast(note.pinned ? "メモを固定しました" : "固定を解除しました");
+    }
+
+    function exportNotes() {
+      if (!notes.length) {
+        showToast("書き出すメモがありません");
+        return;
+      }
+      const text = sortNotes(notes).map((note) => {
+        const title = note.title.trim() || "無題のメモ";
+        return `# ${title}\n更新: ${formatDate(note.updatedAt)}\n固定: ${note.pinned ? "はい" : "いいえ"}\n\n${note.body}`;
+      }).join("\n\n---\n\n");
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `ids-hub-memos-${new Date().toISOString().slice(0, 10)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast("テキストを書き出しました");
+    }
+
+    noteList.addEventListener("click", (event) => {
+      const item = event.target.closest(".note-item");
+      if (!item) return;
+      activeId = item.dataset.id;
+      render();
+    });
+
+    titleInput.addEventListener("input", queueSave);
+    bodyInput.addEventListener("input", queueSave);
+    searchInput.addEventListener("input", renderList);
+    newButton.addEventListener("click", createNote);
+    exportButton.addEventListener("click", exportNotes);
+    deleteButton.addEventListener("click", deleteActiveNote);
+    pinButton.addEventListener("click", togglePin);
+
+    if (!notes.length) createNote();
+    else render();
+  </script>
+</body>
+</html>

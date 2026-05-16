@@ -1,0 +1,1677 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDS Quiz Live | IDS Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --ink: #132033;
+      --muted: #66758a;
+      --panel: #fff;
+      --line: #dce4ee;
+      --brand: #0969da;
+      --brand-dark: #044da4;
+      --green: #00876f;
+      --yellow: #d98900;
+      --red: #d64562;
+      --dark: #172232;
+      --purple: #7c3aed;
+      --shadow: 0 20px 55px rgba(24, 39, 58, .14);
+      --radius: 8px;
+      font-family: "Inter", "Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(9, 105, 218, .12), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(0, 135, 111, .11), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    a { color: inherit; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .58; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px clamp(16px, 4vw, 42px);
+      border-bottom: 1px solid rgba(220, 228, 238, .9);
+      background: rgba(255, 255, 255, .9);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 54px;
+      height: 40px;
+      border-radius: var(--radius);
+      display: block;
+      flex: 0 0 auto;
+      object-fit: contain;
+      background: #fff;
+      padding: 4px;
+      box-shadow: 0 12px 26px rgba(9, 105, 218, .22);
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ghost-button,
+    .primary-button,
+    .danger-button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 14px;
+      border-radius: var(--radius);
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .ghost-button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .primary-button {
+      border: 0;
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(9, 105, 218, .2);
+    }
+
+    .danger-button {
+      border: 1px solid rgba(214, 69, 98, .24);
+      background: rgba(214, 69, 98, .1);
+      color: #a8263d;
+    }
+
+    .ghost-button:hover,
+    .primary-button:hover,
+    .danger-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    main {
+      width: min(1220px, 100%);
+      margin: 0 auto;
+      padding: 28px clamp(14px, 4vw, 42px) 48px;
+    }
+
+    .hero {
+      min-height: 360px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(310px, .95fr);
+      overflow: hidden;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .42), rgba(0, 135, 111, .18)),
+        #101b2d;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      padding: clamp(30px, 5vw, 54px);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: #89e3d3;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(36px, 5vw, 62px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p:not(.eyebrow) {
+      margin: 0;
+      max-width: 640px;
+      color: #d7e2ef;
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    .hero-actions,
+    .panel-actions,
+    .round-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .hero .ghost-button {
+      border-color: rgba(255,255,255,.26);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+    }
+
+    .live-card {
+      margin: clamp(18px, 4vw, 34px);
+      align-self: stretch;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+      padding: clamp(18px, 4vw, 28px);
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: var(--radius);
+      color: #fff;
+    }
+
+    .pulse-ring {
+      width: min(260px, 100%);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        conic-gradient(from 12deg, #e53e3e, #d98900, #00876f, #0969da, #7c3aed, #e53e3e);
+      box-shadow: 0 24px 60px rgba(0,0,0,.28);
+      animation: floaty 5s ease-in-out infinite;
+    }
+
+    .pulse-core {
+      width: 72%;
+      height: 72%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: var(--brand-dark);
+      text-align: center;
+      font-weight: 900;
+      line-height: 1.1;
+      box-shadow: inset 0 0 0 10px rgba(9, 105, 218, .08);
+    }
+
+    .pulse-core strong {
+      display: block;
+      font-size: clamp(34px, 6vw, 58px);
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+
+    .live-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .live-stat {
+      padding: 12px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .live-stat strong {
+      display: block;
+      font-size: 22px;
+    }
+
+    .live-stat span {
+      display: block;
+      color: #c4d4e4;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(310px, .82fr) minmax(0, 1.18fr);
+      gap: 18px;
+      margin-top: 22px;
+      align-items: start;
+    }
+
+    .panel,
+    .play-stage {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 12px 36px rgba(24, 39, 58, .08);
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel + .panel { margin-top: 18px; }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    h2, h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h2 { font-size: clamp(22px, 3vw, 30px); }
+    h3 { font-size: 18px; }
+
+    .hint,
+    .status-text {
+      margin: 4px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 11px 12px;
+      outline: none;
+      transition: border .18s ease, box-shadow .18s ease;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(9, 105, 218, .7);
+      box-shadow: 0 0 0 4px rgba(9, 105, 218, .12);
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 112px;
+      gap: 10px;
+    }
+
+    .players {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .player-pill,
+    .question-item,
+    .ranking-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .player-pill {
+      min-height: 42px;
+      padding: 8px 8px 8px 12px;
+    }
+
+    .player-pill strong,
+    .question-item strong {
+      overflow-wrap: anywhere;
+    }
+
+    .mini-button {
+      min-width: 34px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8fafc;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .mini-button:hover {
+      color: var(--ink);
+      background: #eef4fb;
+    }
+
+    .quiz-form {
+      display: grid;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .answer-input {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .answer-letter {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .answer-letter.a { background: #d64562; }
+    .answer-letter.b { background: #0969da; }
+    .answer-letter.c { background: #d98900; }
+    .answer-letter.d { background: #00876f; }
+
+    .question-list {
+      display: grid;
+      gap: 8px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .question-item {
+      padding: 12px;
+      align-items: flex-start;
+    }
+
+    .question-item span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .question-tools {
+      display: flex;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .play-stage {
+      min-height: 640px;
+      overflow: hidden;
+    }
+
+    .screen {
+      min-height: 640px;
+      display: none;
+      padding: clamp(18px, 4vw, 30px);
+    }
+
+    .screen.active { display: grid; }
+
+    .lobby-screen {
+      align-content: center;
+      gap: 20px;
+      text-align: center;
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .1), rgba(0, 135, 111, .08)),
+        #fff;
+    }
+
+    .lobby-code {
+      justify-self: center;
+      width: min(360px, 100%);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px dashed rgba(9, 105, 218, .35);
+      background: #f8fbff;
+    }
+
+    .lobby-code strong {
+      display: block;
+      font-size: clamp(40px, 10vw, 76px);
+      color: var(--brand);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .lobby-code span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .player-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .player-preview span {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eef4fb;
+      color: #314156;
+      font-weight: 900;
+    }
+
+    .countdown-screen {
+      place-items: center;
+      text-align: center;
+      color: #fff;
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .42), rgba(0, 135, 111, .22)),
+        #111c2f;
+    }
+
+    .count-number {
+      width: min(280px, 62vw);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--brand);
+      font-size: clamp(90px, 18vw, 170px);
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: 0 24px 70px rgba(0,0,0,.25);
+      animation: pop .8s ease both;
+    }
+
+    @keyframes pop {
+      from { transform: scale(.72); opacity: .4; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .question-screen {
+      grid-template-rows: auto minmax(170px, auto) 1fr auto;
+      gap: 18px;
+      background: #fff;
+    }
+
+    .round-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .round-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .badge {
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #eef4fb;
+      color: #314156;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .timer {
+      width: min(160px, 32vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        conic-gradient(var(--brand) var(--timer-deg, 360deg), #e6edf5 0);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .timer span {
+      width: 72%;
+      height: 72%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: var(--ink);
+      font-size: clamp(30px, 5vw, 54px);
+      font-weight: 900;
+    }
+
+    .question-box {
+      display: grid;
+      place-items: center;
+      min-height: 170px;
+      padding: clamp(18px, 4vw, 30px);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .1), rgba(0, 135, 111, .06)),
+        #f8fbff;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .question-box h2 {
+      max-width: 840px;
+      font-size: clamp(25px, 4.5vw, 44px);
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .choice-button {
+      min-height: 118px;
+      padding: 18px;
+      border: 0;
+      border-radius: var(--radius);
+      color: #fff;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      text-align: left;
+      font-weight: 900;
+      box-shadow: 0 12px 26px rgba(24, 39, 58, .16);
+      transition: transform .14s ease, filter .14s ease, opacity .14s ease;
+    }
+
+    .choice-button:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.01);
+      filter: saturate(1.1);
+    }
+
+    .choice-button span:first-child {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.24);
+      font-size: 22px;
+    }
+
+    .choice-button span:last-child {
+      font-size: clamp(17px, 2.5vw, 24px);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .choice-button.a { background: #d64562; }
+    .choice-button.b { background: #0969da; }
+    .choice-button.c { background: #d98900; }
+    .choice-button.d { background: #00876f; }
+    .choice-button.correct { outline: 5px solid rgba(0, 135, 111, .28); filter: brightness(1.05); }
+    .choice-button.wrong { opacity: .35; filter: grayscale(.2); }
+
+    .active-player {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .active-player strong {
+      display: block;
+      font-size: clamp(18px, 3vw, 25px);
+      overflow-wrap: anywhere;
+    }
+
+    .active-player span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .result-screen,
+    .final-screen {
+      align-content: start;
+      gap: 18px;
+      background: #fff;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 12px;
+      padding: clamp(18px, 4vw, 28px);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .12), rgba(0, 135, 111, .08)),
+        #f8fbff;
+      border: 1px solid var(--line);
+    }
+
+    .result-card h2 {
+      font-size: clamp(28px, 5vw, 48px);
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .score-card {
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .score-card strong {
+      display: block;
+      font-size: 26px;
+      color: var(--brand);
+    }
+
+    .score-card span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .ranking {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ranking-row {
+      padding: 13px 14px;
+    }
+
+    .rank-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .rank-no {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: #eef4fb;
+      color: var(--brand-dark);
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .ranking-row:first-child .rank-no {
+      background: #fff4cf;
+      color: #9a6900;
+    }
+
+    .rank-name {
+      min-width: 0;
+    }
+
+    .rank-name strong {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .rank-name span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .rank-score {
+      text-align: right;
+      font-weight: 900;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 40;
+      max-width: calc(100vw - 28px);
+      transform: translateX(-50%) translateY(18px);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      background: var(--dark);
+      color: #fff;
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .empty {
+      padding: 16px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #f8fafc;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .live-card {
+        margin-top: 0;
+      }
+
+      .play-stage,
+      .screen {
+        min-height: 560px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        width: 100%;
+      }
+
+      .nav .ghost-button {
+        width: 100%;
+      }
+
+      .hero-copy,
+      .live-card,
+      .screen,
+      .panel {
+        padding: 16px;
+      }
+
+      .input-row,
+      .answer-grid,
+      .choice-grid,
+      .score-grid,
+      .live-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .round-top,
+      .active-player {
+        grid-template-columns: 1fr;
+      }
+
+      .timer {
+        width: 116px;
+        justify-self: center;
+      }
+
+      .choice-button {
+        min-height: 90px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">
+      <img class="brand-mark" src="../assets/ids-logo.png" alt="IDS">
+      <span>IDS Hub<br>Quiz Live</span>
+    </a>
+    <nav class="nav" aria-label="ページナビゲーション">
+      <a class="ghost-button" href="../index.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path><path d="M21 12H9"></path><path d="M5 5v14"></path></svg>
+        Hubへ戻る
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="pageTitle">
+      <div class="hero-copy">
+        <p class="eyebrow">IDS PARTY GAME</p>
+        <h1 id="pageTitle">みんなで盛り上がる、1台完結クイズ。</h1>
+        <p>プレイヤーを登録して、問題を選んで、制限時間内に回答。正解・速さ・連続正解でスコアが伸びる、Kahoot風のローカル対戦です。</p>
+        <div class="hero-actions">
+          <button class="primary-button" type="button" id="jumpStart">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18l15-9z"></path></svg>
+            ゲーム準備へ
+          </button>
+          <button class="ghost-button" type="button" id="loadSampleTop">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"></path><path d="m17 8-5-5-5 5"></path><path d="M4 21h16"></path></svg>
+            サンプル問題を復元
+          </button>
+        </div>
+      </div>
+      <div class="live-card" aria-label="クイズの概要">
+        <div class="pulse-ring">
+          <div class="pulse-core">
+            <strong>4択</strong>
+            LIVE QUIZ
+          </div>
+        </div>
+        <div class="live-stats">
+          <div class="live-stat"><strong id="heroQuestionCount">0</strong><span>Questions</span></div>
+          <div class="live-stat"><strong id="heroPlayerCount">0</strong><span>Players</span></div>
+          <div class="live-stat"><strong>Fast</strong><span>Speed Bonus</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout" id="setup">
+      <div>
+        <article class="panel" aria-labelledby="playersTitle">
+          <div class="panel-head">
+            <div>
+              <h2 id="playersTitle">プレイヤー</h2>
+              <p class="hint">同じ画面で順番に答えるパーティーモードです。</p>
+            </div>
+          </div>
+          <div class="input-row">
+            <input id="playerName" type="text" maxlength="18" placeholder="名前を入力" autocomplete="off">
+            <button class="primary-button" type="button" id="addPlayer">追加</button>
+          </div>
+          <div class="players" id="playersList" aria-live="polite"></div>
+        </article>
+
+        <article class="panel" aria-labelledby="settingsTitle">
+          <div class="panel-head">
+            <div>
+              <h2 id="settingsTitle">ゲーム設定</h2>
+              <p class="hint">問題ごとの秒数と、回答後の進行方法を選べます。</p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="timeLimit">制限時間</label>
+            <select id="timeLimit">
+              <option value="10">10秒</option>
+              <option value="15" selected>15秒</option>
+              <option value="20">20秒</option>
+              <option value="30">30秒</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="paceMode">進行</label>
+            <select id="paceMode">
+              <option value="manual" selected>結果を見てから次へ</option>
+              <option value="auto">自動で次のプレイヤーへ</option>
+            </select>
+          </div>
+          <div class="panel-actions">
+            <button class="primary-button" type="button" id="startGame">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18l15-9z"></path></svg>
+              スタート
+            </button>
+            <button class="ghost-button" type="button" id="resetScores">スコア初期化</button>
+          </div>
+          <p class="status-text" id="setupStatus">プレイヤーと問題を用意すると開始できます。</p>
+        </article>
+      </div>
+
+      <div>
+        <article class="play-stage" aria-live="polite">
+          <section class="screen lobby-screen active" id="lobbyScreen">
+            <div class="lobby-code">
+              <strong>IDS</strong>
+              <span>ローカルクイズルーム</span>
+            </div>
+            <div>
+              <h2>準備ができたらスタート。</h2>
+              <p class="hint">左のプレイヤーリストに参加者を入れて、下の問題を編集できます。スマホを回しながら遊んでも、司会者が読み上げてもOKです。</p>
+            </div>
+            <div class="player-preview" id="playerPreview"></div>
+          </section>
+
+          <section class="screen countdown-screen" id="countdownScreen">
+            <div>
+              <div class="count-number" id="countNumber">3</div>
+              <p class="hint" style="color:#d7e2ef;margin-top:18px;">最初の問題を準備中...</p>
+            </div>
+          </section>
+
+          <section class="screen question-screen" id="questionScreen">
+            <div class="round-top">
+              <div class="round-meta">
+                <span class="badge" id="roundBadge">Q1 / 1</span>
+                <span class="badge" id="playerBadge">Player</span>
+                <span class="badge" id="streakBadge">Streak 0</span>
+              </div>
+              <div class="timer" id="timerRing"><span id="timerText">15</span></div>
+            </div>
+            <div class="question-box">
+              <h2 id="questionText">問題文</h2>
+            </div>
+            <div class="choice-grid" id="choiceGrid"></div>
+            <div class="active-player">
+              <div>
+                <strong id="activePlayerName">Player</strong>
+                <span id="activePlayerScore">0 pt</span>
+              </div>
+              <button class="ghost-button" type="button" id="skipQuestion">時間切れにする</button>
+            </div>
+          </section>
+
+          <section class="screen result-screen" id="resultScreen">
+            <div class="result-card">
+              <p class="eyebrow" id="resultEyebrow" style="color:var(--green);">RESULT</p>
+              <h2 id="resultTitle">正解！</h2>
+              <p class="hint" id="resultDetail">スコアを加算しました。</p>
+            </div>
+            <div class="score-grid">
+              <div class="score-card"><strong id="earnedScore">0</strong><span>獲得ポイント</span></div>
+              <div class="score-card"><strong id="speedBonus">0</strong><span>スピードボーナス</span></div>
+              <div class="score-card"><strong id="streakScore">0</strong><span>連続正解</span></div>
+            </div>
+            <div>
+              <div class="panel-head">
+                <div>
+                  <h3>現在のランキング</h3>
+                  <p class="hint">同点の場合は連続正解が高い順に並びます。</p>
+                </div>
+              </div>
+              <div class="ranking" id="midRanking"></div>
+            </div>
+            <div class="round-actions">
+              <button class="primary-button" type="button" id="nextTurn">次へ</button>
+              <button class="ghost-button" type="button" id="finishEarly">ここで終了</button>
+            </div>
+          </section>
+
+          <section class="screen final-screen" id="finalScreen">
+            <div class="result-card">
+              <p class="eyebrow" style="color:var(--yellow);">FINAL RANKING</p>
+              <h2>結果発表</h2>
+              <p class="hint" id="finalSummary">おつかれさまでした。</p>
+            </div>
+            <div class="ranking" id="finalRanking"></div>
+            <div class="round-actions">
+              <button class="primary-button" type="button" id="playAgain">同じメンバーでもう一度</button>
+              <button class="ghost-button" type="button" id="backToLobby">ロビーへ戻る</button>
+            </div>
+          </section>
+        </article>
+
+        <article class="panel" aria-labelledby="editorTitle">
+          <div class="panel-head">
+            <div>
+              <h2 id="editorTitle">問題エディター</h2>
+              <p class="hint">4択問題を追加・編集できます。内容はこのブラウザに保存されます。</p>
+            </div>
+          </div>
+
+          <form class="quiz-form" id="questionForm">
+            <input type="hidden" id="editingIndex" value="-1">
+            <div class="field">
+              <label for="questionInput">問題文</label>
+              <textarea id="questionInput" placeholder="例: IDS Hubのメインカラーに近い色は？"></textarea>
+            </div>
+            <div class="answer-grid">
+              <div class="answer-input"><span class="answer-letter a">A</span><input id="answer0" type="text" placeholder="選択肢A"></div>
+              <div class="answer-input"><span class="answer-letter b">B</span><input id="answer1" type="text" placeholder="選択肢B"></div>
+              <div class="answer-input"><span class="answer-letter c">C</span><input id="answer2" type="text" placeholder="選択肢C"></div>
+              <div class="answer-input"><span class="answer-letter d">D</span><input id="answer3" type="text" placeholder="選択肢D"></div>
+            </div>
+            <div class="field">
+              <label for="correctAnswer">正解</label>
+              <select id="correctAnswer">
+                <option value="0">A</option>
+                <option value="1">B</option>
+                <option value="2">C</option>
+                <option value="3">D</option>
+              </select>
+            </div>
+            <div class="panel-actions">
+              <button class="primary-button" type="submit" id="saveQuestion">問題を追加</button>
+              <button class="ghost-button" type="button" id="clearForm">入力をクリア</button>
+              <button class="ghost-button" type="button" id="loadSamples">サンプル復元</button>
+              <button class="danger-button" type="button" id="clearQuestions">全削除</button>
+            </div>
+          </form>
+
+          <div style="height:16px"></div>
+          <div class="question-list" id="questionList"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const sampleQuestions = [
+      {
+        text: "IDS Hubは何をまとめたポータル？",
+        answers: ["Webツールとゲーム", "映画レビュー", "旅行予約", "天気予報だけ"],
+        correct: 0
+      },
+      {
+        text: "日本で「春分の日」がある季節は？",
+        answers: ["春", "夏", "秋", "冬"],
+        correct: 0
+      },
+      {
+        text: "Webページの見た目を主に担当する言語は？",
+        answers: ["SQL", "CSS", "Python", "Bash"],
+        correct: 1
+      },
+      {
+        text: "4択クイズで一番大事な司会者スキルは？",
+        answers: ["無言で待つ", "答えを先に言う", "テンポよく盛り上げる", "全員を迷子にする"],
+        correct: 2
+      },
+      {
+        text: "IDS Hubのロゴへ戻るリンクはどこにつながる？",
+        answers: ["外部SNS", "管理画面のみ", "前の問題", "Hubトップ"],
+        correct: 3
+      }
+    ];
+
+    const storageKey = "idsQuizLiveState";
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+    const state = {
+      players: [],
+      questions: [],
+      timeLimit: 15,
+      paceMode: "manual",
+      currentQuestion: 0,
+      currentPlayer: 0,
+      startedAt: 0,
+      timerId: null,
+      remaining: 15,
+      resultDelayId: null
+    };
+
+    function cloneSampleQuestions() {
+      return sampleQuestions.map((question) => ({ ...question, answers: [...question.answers] }));
+    }
+
+    const els = {
+      heroQuestionCount: $("#heroQuestionCount"),
+      heroPlayerCount: $("#heroPlayerCount"),
+      playerName: $("#playerName"),
+      addPlayer: $("#addPlayer"),
+      playersList: $("#playersList"),
+      playerPreview: $("#playerPreview"),
+      timeLimit: $("#timeLimit"),
+      paceMode: $("#paceMode"),
+      startGame: $("#startGame"),
+      resetScores: $("#resetScores"),
+      setupStatus: $("#setupStatus"),
+      questionForm: $("#questionForm"),
+      editingIndex: $("#editingIndex"),
+      questionInput: $("#questionInput"),
+      answerInputs: [$("#answer0"), $("#answer1"), $("#answer2"), $("#answer3")],
+      correctAnswer: $("#correctAnswer"),
+      saveQuestion: $("#saveQuestion"),
+      clearForm: $("#clearForm"),
+      loadSamples: $("#loadSamples"),
+      loadSampleTop: $("#loadSampleTop"),
+      clearQuestions: $("#clearQuestions"),
+      questionList: $("#questionList"),
+      screens: $$(".screen"),
+      lobbyScreen: $("#lobbyScreen"),
+      countdownScreen: $("#countdownScreen"),
+      countNumber: $("#countNumber"),
+      questionScreen: $("#questionScreen"),
+      resultScreen: $("#resultScreen"),
+      finalScreen: $("#finalScreen"),
+      roundBadge: $("#roundBadge"),
+      playerBadge: $("#playerBadge"),
+      streakBadge: $("#streakBadge"),
+      timerRing: $("#timerRing"),
+      timerText: $("#timerText"),
+      questionText: $("#questionText"),
+      choiceGrid: $("#choiceGrid"),
+      activePlayerName: $("#activePlayerName"),
+      activePlayerScore: $("#activePlayerScore"),
+      skipQuestion: $("#skipQuestion"),
+      resultEyebrow: $("#resultEyebrow"),
+      resultTitle: $("#resultTitle"),
+      resultDetail: $("#resultDetail"),
+      earnedScore: $("#earnedScore"),
+      speedBonus: $("#speedBonus"),
+      streakScore: $("#streakScore"),
+      midRanking: $("#midRanking"),
+      nextTurn: $("#nextTurn"),
+      finishEarly: $("#finishEarly"),
+      finalSummary: $("#finalSummary"),
+      finalRanking: $("#finalRanking"),
+      playAgain: $("#playAgain"),
+      backToLobby: $("#backToLobby"),
+      jumpStart: $("#jumpStart"),
+      toast: $("#toast")
+    };
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        state.players = Array.isArray(saved.players) ? saved.players : [];
+        state.questions = Array.isArray(saved.questions) && saved.questions.length ? saved.questions : cloneSampleQuestions();
+        state.timeLimit = Number(saved.timeLimit) || 15;
+        state.paceMode = saved.paceMode === "auto" ? "auto" : "manual";
+      } catch (error) {
+        state.players = [];
+        state.questions = cloneSampleQuestions();
+      }
+      state.players = state.players.map((player) => ({
+        name: String(player.name || "").slice(0, 18) || "Player",
+        score: Number(player.score) || 0,
+        streak: Number(player.streak) || 0,
+        bestStreak: Number(player.bestStreak) || 0,
+        correct: Number(player.correct) || 0
+      }));
+      state.questions = state.questions.map(normalizeQuestion).filter(Boolean);
+      if (!state.questions.length) state.questions = cloneSampleQuestions();
+      els.timeLimit.value = String(state.timeLimit);
+      els.paceMode.value = state.paceMode;
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify({
+        players: state.players,
+        questions: state.questions,
+        timeLimit: state.timeLimit,
+        paceMode: state.paceMode
+      }));
+    }
+
+    function normalizeQuestion(question) {
+      if (!question || typeof question.text !== "string" || !Array.isArray(question.answers)) return null;
+      const answers = question.answers.slice(0, 4).map((answer) => String(answer || "").trim());
+      if (answers.length !== 4 || answers.some((answer) => !answer)) return null;
+      const correct = Number(question.correct);
+      return {
+        text: question.text.trim(),
+        answers,
+        correct: correct >= 0 && correct < 4 ? correct : 0
+      };
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 2400);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderAll() {
+      renderPlayers();
+      renderQuestions();
+      updateSetupStatus();
+      els.heroQuestionCount.textContent = state.questions.length;
+      els.heroPlayerCount.textContent = state.players.length;
+      saveState();
+    }
+
+    function renderPlayers() {
+      els.playersList.innerHTML = state.players.length ? state.players.map((player, index) => `
+        <div class="player-pill">
+          <strong>${escapeHtml(player.name)}</strong>
+          <button class="mini-button" type="button" aria-label="${escapeHtml(player.name)}を削除" data-remove-player="${index}">x</button>
+        </div>
+      `).join("") : `<div class="empty">まだプレイヤーがいません</div>`;
+
+      els.playerPreview.innerHTML = state.players.length ? state.players.map((player) => `
+        <span>${escapeHtml(player.name)}</span>
+      `).join("") : `<span>参加者待ち</span>`;
+    }
+
+    function renderQuestions() {
+      els.questionList.innerHTML = state.questions.length ? state.questions.map((question, index) => `
+        <div class="question-item">
+          <div>
+            <strong>Q${index + 1}. ${escapeHtml(question.text)}</strong>
+            <span>正解: ${["A", "B", "C", "D"][question.correct]} / ${escapeHtml(question.answers[question.correct])}</span>
+          </div>
+          <div class="question-tools">
+            <button class="mini-button" type="button" aria-label="Q${index + 1}を編集" data-edit-question="${index}">Edit</button>
+            <button class="mini-button" type="button" aria-label="Q${index + 1}を削除" data-remove-question="${index}">x</button>
+          </div>
+        </div>
+      `).join("") : `<div class="empty">問題がありません。サンプルを復元するか、新しく追加してください。</div>`;
+    }
+
+    function updateSetupStatus() {
+      const ready = state.players.length > 0 && state.questions.length > 0;
+      els.startGame.disabled = !ready;
+      if (!state.players.length && !state.questions.length) {
+        els.setupStatus.textContent = "プレイヤーと問題を用意すると開始できます。";
+      } else if (!state.players.length) {
+        els.setupStatus.textContent = "プレイヤーを1人以上追加してください。";
+      } else if (!state.questions.length) {
+        els.setupStatus.textContent = "問題を1問以上追加してください。";
+      } else {
+        els.setupStatus.textContent = `${state.players.length}人、${state.questions.length}問で開始できます。`;
+      }
+    }
+
+    function addPlayer() {
+      const name = els.playerName.value.trim();
+      if (!name) {
+        showToast("プレイヤー名を入力してください");
+        return;
+      }
+      if (state.players.some((player) => player.name === name)) {
+        showToast("同じ名前のプレイヤーがいます");
+        return;
+      }
+      state.players.push({ name, score: 0, streak: 0, bestStreak: 0, correct: 0 });
+      els.playerName.value = "";
+      renderAll();
+    }
+
+    function resetScores(silent = false) {
+      state.players.forEach((player) => {
+        player.score = 0;
+        player.streak = 0;
+        player.bestStreak = 0;
+        player.correct = 0;
+      });
+      renderAll();
+      if (!silent) showToast("スコアを初期化しました");
+    }
+
+    function clearQuestionForm() {
+      els.editingIndex.value = "-1";
+      els.questionInput.value = "";
+      els.answerInputs.forEach((input) => { input.value = ""; });
+      els.correctAnswer.value = "0";
+      els.saveQuestion.textContent = "問題を追加";
+    }
+
+    function saveQuestion(event) {
+      event.preventDefault();
+      const question = normalizeQuestion({
+        text: els.questionInput.value,
+        answers: els.answerInputs.map((input) => input.value),
+        correct: Number(els.correctAnswer.value)
+      });
+      if (!question || !question.text) {
+        showToast("問題文と4つの選択肢を入力してください");
+        return;
+      }
+      const editingIndex = Number(els.editingIndex.value);
+      if (editingIndex >= 0) {
+        state.questions[editingIndex] = question;
+        showToast("問題を更新しました");
+      } else {
+        state.questions.push(question);
+        showToast("問題を追加しました");
+      }
+      clearQuestionForm();
+      renderAll();
+    }
+
+    function editQuestion(index) {
+      const question = state.questions[index];
+      if (!question) return;
+      els.editingIndex.value = String(index);
+      els.questionInput.value = question.text;
+      question.answers.forEach((answer, answerIndex) => {
+        els.answerInputs[answerIndex].value = answer;
+      });
+      els.correctAnswer.value = String(question.correct);
+      els.saveQuestion.textContent = "問題を更新";
+      els.questionInput.focus();
+    }
+
+    function showScreen(screen) {
+      els.screens.forEach((item) => item.classList.toggle("active", item === screen));
+    }
+
+    function startGame() {
+      if (!state.players.length || !state.questions.length) {
+        updateSetupStatus();
+        return;
+      }
+      state.timeLimit = Number(els.timeLimit.value) || 15;
+      state.paceMode = els.paceMode.value;
+      resetScores(true);
+      state.currentQuestion = 0;
+      state.currentPlayer = 0;
+      saveState();
+      runCountdown();
+    }
+
+    function runCountdown() {
+      showScreen(els.countdownScreen);
+      let count = 3;
+      els.countNumber.textContent = count;
+      const id = window.setInterval(() => {
+        count -= 1;
+        if (count <= 0) {
+          window.clearInterval(id);
+          showQuestion();
+          return;
+        }
+        els.countNumber.style.animation = "none";
+        void els.countNumber.offsetWidth;
+        els.countNumber.style.animation = "";
+        els.countNumber.textContent = count;
+      }, 760);
+    }
+
+    function showQuestion() {
+      window.clearTimeout(state.resultDelayId);
+      const question = state.questions[state.currentQuestion];
+      const player = state.players[state.currentPlayer];
+      if (!question || !player) {
+        showFinal();
+        return;
+      }
+
+      state.remaining = state.timeLimit;
+      state.startedAt = Date.now();
+      els.roundBadge.textContent = `Q${state.currentQuestion + 1} / ${state.questions.length}`;
+      els.playerBadge.textContent = `${state.currentPlayer + 1}番手`;
+      els.streakBadge.textContent = `Streak ${player.streak}`;
+      els.questionText.textContent = question.text;
+      els.activePlayerName.textContent = player.name;
+      els.activePlayerScore.textContent = `${player.score} pt`;
+      els.choiceGrid.innerHTML = question.answers.map((answer, index) => `
+        <button class="choice-button ${["a", "b", "c", "d"][index]}" type="button" data-choice="${index}">
+          <span>${["A", "B", "C", "D"][index]}</span>
+          <span>${escapeHtml(answer)}</span>
+        </button>
+      `).join("");
+
+      updateTimer();
+      window.clearInterval(state.timerId);
+      state.timerId = window.setInterval(() => {
+        state.remaining -= 1;
+        updateTimer();
+        if (state.remaining <= 0) {
+          answerQuestion(-1);
+        }
+      }, 1000);
+
+      showScreen(els.questionScreen);
+    }
+
+    function updateTimer() {
+      const clamped = Math.max(0, state.remaining);
+      const deg = Math.round((clamped / state.timeLimit) * 360);
+      els.timerText.textContent = clamped;
+      els.timerRing.style.setProperty("--timer-deg", `${deg}deg`);
+    }
+
+    function answerQuestion(choice) {
+      window.clearInterval(state.timerId);
+      const question = state.questions[state.currentQuestion];
+      const player = state.players[state.currentPlayer];
+      if (!question || !player) return;
+
+      const elapsed = Math.max(0, (Date.now() - state.startedAt) / 1000);
+      const correct = choice === question.correct;
+      const speed = correct ? Math.max(0, Math.round((state.timeLimit - elapsed) * 38)) : 0;
+      const streakBefore = player.streak;
+      const streakBonus = correct ? Math.min(400, streakBefore * 80) : 0;
+      const earned = correct ? 650 + speed + streakBonus : 0;
+
+      if (correct) {
+        player.score += earned;
+        player.streak += 1;
+        player.correct += 1;
+        player.bestStreak = Math.max(player.bestStreak, player.streak);
+      } else {
+        player.streak = 0;
+      }
+
+      $$(".choice-button").forEach((button) => {
+        const buttonChoice = Number(button.dataset.choice);
+        button.disabled = true;
+        button.classList.toggle("correct", buttonChoice === question.correct);
+        button.classList.toggle("wrong", choice !== -1 && buttonChoice === choice && !correct);
+      });
+
+      els.resultEyebrow.textContent = correct ? "NICE ANSWER" : choice === -1 ? "TIME UP" : "MISS";
+      els.resultEyebrow.style.color = correct ? "var(--green)" : "var(--red)";
+      els.resultTitle.textContent = correct ? `${player.name}さん、正解！` : `${player.name}さん、惜しい！`;
+      els.resultDetail.textContent = `正解は ${["A", "B", "C", "D"][question.correct]}「${question.answers[question.correct]}」です。`;
+      els.earnedScore.textContent = earned;
+      els.speedBonus.textContent = speed;
+      els.streakScore.textContent = player.streak;
+      renderRanking(els.midRanking);
+      renderAll();
+
+      if (state.paceMode === "auto") {
+        state.resultDelayId = window.setTimeout(nextTurn, 2600);
+      }
+      showScreen(els.resultScreen);
+    }
+
+    function nextTurn() {
+      window.clearTimeout(state.resultDelayId);
+      state.currentPlayer += 1;
+      if (state.currentPlayer >= state.players.length) {
+        state.currentPlayer = 0;
+        state.currentQuestion += 1;
+      }
+      if (state.currentQuestion >= state.questions.length) {
+        showFinal();
+      } else {
+        showQuestion();
+      }
+    }
+
+    function sortedPlayers() {
+      return [...state.players].sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (b.bestStreak !== a.bestStreak) return b.bestStreak - a.bestStreak;
+        return b.correct - a.correct;
+      });
+    }
+
+    function renderRanking(target) {
+      const rows = sortedPlayers();
+      target.innerHTML = rows.length ? rows.map((player, index) => `
+        <div class="ranking-row">
+          <div class="rank-left">
+            <span class="rank-no">${index + 1}</span>
+            <div class="rank-name">
+              <strong>${escapeHtml(player.name)}</strong>
+              <span>${player.correct}問正解 / ベスト連続 ${player.bestStreak}</span>
+            </div>
+          </div>
+          <div class="rank-score">${player.score} pt</div>
+        </div>
+      `).join("") : `<div class="empty">ランキングはまだありません</div>`;
+    }
+
+    function showFinal() {
+      window.clearInterval(state.timerId);
+      window.clearTimeout(state.resultDelayId);
+      const totalTurns = state.questions.length * Math.max(1, state.players.length);
+      els.finalSummary.textContent = `${state.players.length}人で${state.questions.length}問、合計${totalTurns}ターンをプレイしました。`;
+      renderRanking(els.finalRanking);
+      renderAll();
+      showScreen(els.finalScreen);
+    }
+
+    function backToLobby() {
+      window.clearInterval(state.timerId);
+      window.clearTimeout(state.resultDelayId);
+      showScreen(els.lobbyScreen);
+      renderAll();
+    }
+
+    els.addPlayer.addEventListener("click", addPlayer);
+    els.playerName.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addPlayer();
+    });
+    els.playersList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-player]");
+      if (!button) return;
+      state.players.splice(Number(button.dataset.removePlayer), 1);
+      renderAll();
+    });
+    els.resetScores.addEventListener("click", resetScores);
+    els.timeLimit.addEventListener("change", () => {
+      state.timeLimit = Number(els.timeLimit.value) || 15;
+      renderAll();
+    });
+    els.paceMode.addEventListener("change", () => {
+      state.paceMode = els.paceMode.value;
+      renderAll();
+    });
+    els.questionForm.addEventListener("submit", saveQuestion);
+    els.clearForm.addEventListener("click", clearQuestionForm);
+    els.loadSamples.addEventListener("click", () => {
+      state.questions = cloneSampleQuestions();
+      clearQuestionForm();
+      renderAll();
+      showToast("サンプル問題を復元しました");
+    });
+    els.loadSampleTop.addEventListener("click", () => els.loadSamples.click());
+    els.clearQuestions.addEventListener("click", () => {
+      if (!confirm("すべての問題を削除しますか？")) return;
+      state.questions = [];
+      clearQuestionForm();
+      renderAll();
+    });
+    els.questionList.addEventListener("click", (event) => {
+      const editButton = event.target.closest("[data-edit-question]");
+      const removeButton = event.target.closest("[data-remove-question]");
+      if (editButton) editQuestion(Number(editButton.dataset.editQuestion));
+      if (removeButton) {
+        state.questions.splice(Number(removeButton.dataset.removeQuestion), 1);
+        clearQuestionForm();
+        renderAll();
+      }
+    });
+    els.startGame.addEventListener("click", startGame);
+    els.choiceGrid.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-choice]");
+      if (!button) return;
+      answerQuestion(Number(button.dataset.choice));
+    });
+    els.skipQuestion.addEventListener("click", () => answerQuestion(-1));
+    els.nextTurn.addEventListener("click", nextTurn);
+    els.finishEarly.addEventListener("click", showFinal);
+    els.playAgain.addEventListener("click", startGame);
+    els.backToLobby.addEventListener("click", backToLobby);
+    els.jumpStart.addEventListener("click", () => {
+      $("#setup").scrollIntoView({ behavior: "smooth", block: "start" });
+      els.playerName.focus({ preventScroll: true });
+    });
+
+    loadState();
+    renderAll();
+  </script>
+</body>
+</html>

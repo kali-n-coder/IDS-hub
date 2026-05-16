@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ストップウォッチ・ポモドーロタイマー | IDS Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --ink: #132033;
+      --muted: #66758a;
+      --panel: #fff;
+      --soft: #eef4fb;
+      --line: #dce4ee;
+      --brand: #0969da;
+      --brand-dark: #044da4;
+      --green: #00876f;
+      --yellow: #d98900;
+      --red: #d64562;
+      --dark: #172232;
+      --shadow: 0 20px 55px rgba(24, 39, 58, .14);
+      --radius: 8px;
+      font-family: "Inter", "Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(9, 105, 218, .12), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(0, 135, 111, .11), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px clamp(16px, 4vw, 42px);
+      border-bottom: 1px solid rgba(220, 228, 238, .9);
+      background: rgba(255, 255, 255, .9);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand, .back-link, .button, .tab, .mode-button, .icon-button {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .brand {
+      gap: 12px;
+      min-width: 0;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 54px;
+      height: 40px;
+      display: block;
+      flex: 0 0 auto;
+      object-fit: contain;
+      padding: 4px;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 12px 26px rgba(9, 105, 218, .22);
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .back-link {
+      min-height: 40px;
+      gap: 8px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    main {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 28px clamp(14px, 4vw, 42px) 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: end;
+      padding: clamp(26px, 5vw, 46px);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .34), rgba(0, 135, 111, .16)),
+        #101b2d;
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #89e3d3;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .hero p:not(.eyebrow) {
+      margin: 16px 0 0;
+      max-width: 700px;
+      color: #d7e2ef;
+      line-height: 1.85;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, 128px);
+      gap: 10px;
+    }
+
+    .summary-card {
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.08);
+    }
+
+    .summary-card strong {
+      display: block;
+      font-size: 24px;
+    }
+
+    .summary-card span {
+      color: #c4d4e4;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 12px 30px rgba(24, 39, 58, .08);
+    }
+
+    .timer-panel {
+      padding: clamp(18px, 4vw, 32px);
+    }
+
+    .tabs {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--soft);
+    }
+
+    .tab {
+      min-height: 40px;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .tab.active {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: 0 8px 18px rgba(24, 39, 58, .1);
+    }
+
+    .display-wrap {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+      margin: 18px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(238,244,251,.76), rgba(255,255,255,.96)),
+        #fff;
+      overflow: hidden;
+    }
+
+    .progress-ring {
+      position: absolute;
+      width: min(310px, 72vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        conic-gradient(var(--brand) var(--progress, 0deg), #dce4ee 0);
+      opacity: .22;
+    }
+
+    .display-inner {
+      position: relative;
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      padding: 28px;
+      text-align: center;
+    }
+
+    .mode-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .time-display {
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(58px, 12vw, 112px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .sub-status {
+      min-height: 26px;
+      margin: 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button {
+      min-height: 46px;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .button.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .button.green {
+      border-color: var(--green);
+      background: var(--green);
+      color: #fff;
+    }
+
+    .button:disabled, .tab:disabled, .mode-button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    .side {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      padding: 16px;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .mode-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mode-button {
+      width: 100%;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 48px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .mode-button span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .mode-button.active {
+      border-color: rgba(9,105,218,.58);
+      background: #eef6ff;
+      color: var(--brand);
+      box-shadow: inset 4px 0 0 var(--brand);
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: rgba(9,105,218,.62);
+      box-shadow: 0 0 0 4px rgba(9,105,218,.12);
+    }
+
+    .setting-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .session-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .session-row:first-of-type { border-top: 0; }
+    .session-row strong { color: var(--ink); font-size: 22px; }
+
+    .sound-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .icon-button.active {
+      border-color: rgba(0,135,111,.4);
+      background: #eaf8f4;
+      color: var(--green);
+    }
+
+    .hidden { display: none; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 20;
+      max-width: min(360px, calc(100vw - 36px));
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: var(--dark);
+      color: #fff;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: .2s ease;
+      pointer-events: none;
+      font-weight: 800;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 920px) {
+      .hero, .app { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 620px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .back-link { width: 100%; justify-content: center; }
+      .hero { padding: 24px; }
+      .tabs, .controls { width: 100%; }
+      .controls { grid-template-columns: 1fr; }
+      .display-wrap { min-height: 310px; }
+      .time-display { font-size: clamp(54px, 18vw, 82px); }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html" aria-label="IDS Hubへ戻る">
+      <img class="brand-mark" src="../assets/ids-logo.png" alt="IDS">
+      <span>IDS Hub<br>Tools and Games</span>
+    </a>
+    <a class="back-link" href="../index.html">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      Hubへ戻る
+    </a>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">Focus Timer</p>
+        <h1 id="pageTitle">ストップウォッチ・ポモドーロタイマー</h1>
+        <p>集中作業、休憩、経過時間の計測をひとつにまとめたタイマーです。作業の切り替え時に音で知らせます。</p>
+      </div>
+      <div class="summary" aria-label="セッション概要">
+        <div class="summary-card"><strong id="todaySessions">0</strong><span>本日の集中</span></div>
+        <div class="summary-card"><strong id="totalFocus">0分</strong><span>累計作業</span></div>
+      </div>
+    </section>
+
+    <section class="app" aria-label="タイマー操作エリア">
+      <section class="panel timer-panel">
+        <div class="tabs" role="tablist" aria-label="タイマー種別">
+          <button class="tab active" id="pomodoroTab" type="button" role="tab" aria-selected="true">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l3 2"></path><path d="M9 2h6"></path></svg>
+            ポモドーロ
+          </button>
+          <button class="tab" id="stopwatchTab" type="button" role="tab" aria-selected="false">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 13h5"></path><path d="M9 2h6"></path></svg>
+            ストップウォッチ
+          </button>
+        </div>
+
+        <div class="display-wrap" id="displayWrap">
+          <div class="progress-ring" aria-hidden="true"></div>
+          <div class="display-inner">
+            <p class="mode-label" id="modeLabel">作業 25分</p>
+            <div class="time-display" id="timeDisplay">25:00</div>
+            <p class="sub-status" id="subStatus">準備完了</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="button primary" id="startPauseButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z"></path></svg>
+            開始
+          </button>
+          <button class="button" id="resetButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+            リセット
+          </button>
+          <button class="button green" id="nextButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 4 10 8-10 8V4Z"></path><path d="M19 5v14"></path></svg>
+            次へ
+          </button>
+        </div>
+      </section>
+
+      <aside class="panel side">
+        <section class="setting-card" id="pomodoroSettings">
+          <h2 class="section-title">プリセット</h2>
+          <div class="mode-grid" id="modeGrid">
+            <button class="mode-button active" type="button" data-mode="work" data-minutes="25">作業 <span>25分</span></button>
+            <button class="mode-button" type="button" data-mode="shortBreak" data-minutes="5">短い休憩 <span>5分</span></button>
+            <button class="mode-button" type="button" data-mode="longBreak" data-minutes="15">長い休憩 <span>15分</span></button>
+          </div>
+          <div class="field">
+            <label for="customMinutes">カスタム分数</label>
+            <input id="customMinutes" type="number" min="1" max="180" step="1" value="25">
+          </div>
+        </section>
+
+        <section class="setting-card">
+          <h2 class="section-title">記録</h2>
+          <div class="session-row"><span>完了した作業セッション</span><strong id="sessionCount">0</strong></div>
+          <div class="session-row"><span>今日の作業時間</span><strong id="focusMinutes">0分</strong></div>
+          <button class="button" id="clearStatsButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 15h10l1-15"></path></svg>
+            記録をクリア
+          </button>
+        </section>
+
+        <section class="setting-card">
+          <h2 class="section-title">通知音</h2>
+          <p class="sub-status">開始操作後、ブラウザが許可すれば完了時に短い音を鳴らします。</p>
+          <div class="sound-line">
+            <span id="soundStatus">音声: 有効</span>
+            <button class="icon-button active" id="soundButton" type="button" title="通知音の切り替え" aria-pressed="true">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18.5 5.5a9 9 0 0 1 0 13"></path></svg>
+            </button>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const displayWrap = document.querySelector("#displayWrap");
+    const modeLabel = document.querySelector("#modeLabel");
+    const timeDisplay = document.querySelector("#timeDisplay");
+    const subStatus = document.querySelector("#subStatus");
+    const startPauseButton = document.querySelector("#startPauseButton");
+    const resetButton = document.querySelector("#resetButton");
+    const nextButton = document.querySelector("#nextButton");
+    const pomodoroTab = document.querySelector("#pomodoroTab");
+    const stopwatchTab = document.querySelector("#stopwatchTab");
+    const modeGrid = document.querySelector("#modeGrid");
+    const modeButtons = [...document.querySelectorAll(".mode-button")];
+    const customMinutes = document.querySelector("#customMinutes");
+    const sessionCount = document.querySelector("#sessionCount");
+    const focusMinutes = document.querySelector("#focusMinutes");
+    const todaySessions = document.querySelector("#todaySessions");
+    const totalFocus = document.querySelector("#totalFocus");
+    const clearStatsButton = document.querySelector("#clearStatsButton");
+    const soundButton = document.querySelector("#soundButton");
+    const soundStatus = document.querySelector("#soundStatus");
+    const pomodoroSettings = document.querySelector("#pomodoroSettings");
+    const toast = document.querySelector("#toast");
+    const statsKey = "idsHubPomodoroStats";
+
+    const modes = {
+      work: { label: "作業", minutes: 25, color: "#0969da" },
+      shortBreak: { label: "短い休憩", minutes: 5, color: "#00876f" },
+      longBreak: { label: "長い休憩", minutes: 15, color: "#d98900" }
+    };
+
+    let currentTab = "pomodoro";
+    let currentMode = "work";
+    let durationMs = modes.work.minutes * 60 * 1000;
+    let remainingMs = durationMs;
+    let isRunning = false;
+    let targetTime = 0;
+    let intervalId = null;
+    let stopwatchElapsed = 0;
+    let stopwatchStartedAt = 0;
+    let soundEnabled = true;
+    let audioContext = null;
+    let stats = loadStats();
+
+    function todayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function loadStats() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(statsKey) || "{}");
+        if (parsed.date === todayKey()) return parsed;
+      } catch {}
+      return { date: todayKey(), sessions: 0, focusMinutes: 0 };
+    }
+
+    function saveStats() {
+      stats.date = todayKey();
+      localStorage.setItem(statsKey, JSON.stringify(stats));
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function formatTime(ms, showHours = false) {
+      const safe = Math.max(0, Math.floor(ms / 1000));
+      const hours = Math.floor(safe / 3600);
+      const minutes = Math.floor((safe % 3600) / 60);
+      const seconds = safe % 60;
+      if (showHours || hours > 0) {
+        return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      }
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function updateStats() {
+      sessionCount.textContent = String(stats.sessions);
+      focusMinutes.textContent = `${stats.focusMinutes}分`;
+      todaySessions.textContent = String(stats.sessions);
+      totalFocus.textContent = `${stats.focusMinutes}分`;
+    }
+
+    function updateStartButton() {
+      startPauseButton.innerHTML = isRunning
+        ? `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14"></path><path d="M16 5v14"></path></svg>一時停止`
+        : `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z"></path></svg>開始`;
+    }
+
+    function updateDisplay() {
+      if (currentTab === "stopwatch") {
+        const elapsed = isRunning ? stopwatchElapsed + (Date.now() - stopwatchStartedAt) : stopwatchElapsed;
+        timeDisplay.textContent = formatTime(elapsed, true);
+        modeLabel.textContent = "ストップウォッチ";
+        subStatus.textContent = isRunning ? "計測中" : (elapsed ? "一時停止中" : "準備完了");
+        displayWrap.style.setProperty("--progress", "0deg");
+        nextButton.disabled = true;
+        return;
+      }
+
+      timeDisplay.textContent = formatTime(remainingMs);
+      modeLabel.textContent = `${modes[currentMode].label} ${Math.round(durationMs / 60000)}分`;
+      subStatus.textContent = isRunning ? "進行中" : (remainingMs === durationMs ? "準備完了" : "一時停止中");
+      const done = durationMs ? (durationMs - remainingMs) / durationMs : 0;
+      displayWrap.style.setProperty("--progress", `${Math.min(360, Math.max(0, done * 360))}deg`);
+      nextButton.disabled = false;
+    }
+
+    function tick() {
+      if (currentTab === "stopwatch") {
+        updateDisplay();
+        return;
+      }
+
+      remainingMs = Math.max(0, targetTime - Date.now());
+      updateDisplay();
+      if (remainingMs <= 0) completePomodoro();
+    }
+
+    function startInterval() {
+      clearInterval(intervalId);
+      intervalId = setInterval(tick, 250);
+    }
+
+    async function unlockAudio() {
+      if (!soundEnabled) return;
+      try {
+        audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === "suspended") await audioContext.resume();
+      } catch {
+        soundEnabled = false;
+        updateSoundButton();
+      }
+    }
+
+    function playChime() {
+      if (!soundEnabled || !audioContext) return;
+      const now = audioContext.currentTime;
+      [660, 880, 990].forEach((frequency, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.frequency.value = frequency;
+        oscillator.type = "sine";
+        gain.gain.setValueAtTime(0.0001, now + index * .12);
+        gain.gain.exponentialRampToValueAtTime(0.16, now + index * .12 + .02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + index * .12 + .18);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start(now + index * .12);
+        oscillator.stop(now + index * .12 + .2);
+      });
+    }
+
+    function startTimer() {
+      unlockAudio();
+      isRunning = true;
+      if (currentTab === "stopwatch") {
+        stopwatchStartedAt = Date.now();
+      } else {
+        targetTime = Date.now() + remainingMs;
+      }
+      startInterval();
+      updateStartButton();
+      updateDisplay();
+    }
+
+    function pauseTimer() {
+      if (currentTab === "stopwatch") {
+        stopwatchElapsed += Date.now() - stopwatchStartedAt;
+      } else {
+        remainingMs = Math.max(0, targetTime - Date.now());
+      }
+      isRunning = false;
+      clearInterval(intervalId);
+      updateStartButton();
+      updateDisplay();
+    }
+
+    function toggleStartPause() {
+      if (isRunning) pauseTimer();
+      else startTimer();
+    }
+
+    function resetTimer() {
+      isRunning = false;
+      clearInterval(intervalId);
+      if (currentTab === "stopwatch") {
+        stopwatchElapsed = 0;
+        stopwatchStartedAt = 0;
+      } else {
+        remainingMs = durationMs;
+      }
+      updateStartButton();
+      updateDisplay();
+    }
+
+    function completePomodoro() {
+      isRunning = false;
+      clearInterval(intervalId);
+      remainingMs = 0;
+      updateStartButton();
+      updateDisplay();
+      playChime();
+
+      if (currentMode === "work") {
+        stats.sessions += 1;
+        stats.focusMinutes += Math.round(durationMs / 60000);
+        saveStats();
+        updateStats();
+        showToast("作業セッションが完了しました");
+        selectMode(stats.sessions % 4 === 0 ? "longBreak" : "shortBreak");
+      } else {
+        showToast("休憩が完了しました");
+        selectMode("work");
+      }
+    }
+
+    function selectMode(mode, customValue) {
+      currentMode = mode;
+      const minutes = customValue || modes[mode].minutes;
+      durationMs = Math.max(1, Math.min(180, minutes)) * 60 * 1000;
+      remainingMs = durationMs;
+      isRunning = false;
+      clearInterval(intervalId);
+      modeButtons.forEach((button) => button.classList.toggle("active", button.dataset.mode === mode && !customValue));
+      customMinutes.value = String(Math.round(durationMs / 60000));
+      document.documentElement.style.setProperty("--brand", modes[mode].color);
+      updateStartButton();
+      updateDisplay();
+    }
+
+    function setTab(tab) {
+      if (isRunning) pauseTimer();
+      currentTab = tab;
+      const isPomodoro = tab === "pomodoro";
+      pomodoroTab.classList.toggle("active", isPomodoro);
+      stopwatchTab.classList.toggle("active", !isPomodoro);
+      pomodoroTab.setAttribute("aria-selected", String(isPomodoro));
+      stopwatchTab.setAttribute("aria-selected", String(!isPomodoro));
+      pomodoroSettings.classList.toggle("hidden", !isPomodoro);
+      resetTimer();
+    }
+
+    function updateSoundButton() {
+      soundButton.classList.toggle("active", soundEnabled);
+      soundButton.setAttribute("aria-pressed", String(soundEnabled));
+      soundStatus.textContent = soundEnabled ? "音声: 有効" : "音声: 無効";
+    }
+
+    startPauseButton.addEventListener("click", toggleStartPause);
+    resetButton.addEventListener("click", resetTimer);
+    nextButton.addEventListener("click", () => {
+      if (currentMode === "work") selectMode("shortBreak");
+      else selectMode("work");
+    });
+
+    pomodoroTab.addEventListener("click", () => setTab("pomodoro"));
+    stopwatchTab.addEventListener("click", () => setTab("stopwatch"));
+
+    modeGrid.addEventListener("click", (event) => {
+      const button = event.target.closest(".mode-button");
+      if (!button) return;
+      selectMode(button.dataset.mode);
+    });
+
+    customMinutes.addEventListener("change", () => {
+      const minutes = Number(customMinutes.value);
+      if (!Number.isFinite(minutes) || minutes < 1) {
+        customMinutes.value = "1";
+      }
+      const safeMinutes = Math.max(1, Math.min(180, Number(customMinutes.value)));
+      modeButtons.forEach((button) => button.classList.remove("active"));
+      selectMode(currentMode, safeMinutes);
+      showToast(`${safeMinutes}分に設定しました`);
+    });
+
+    clearStatsButton.addEventListener("click", () => {
+      if (!confirm("本日の記録をクリアしますか？")) return;
+      stats = { date: todayKey(), sessions: 0, focusMinutes: 0 };
+      saveStats();
+      updateStats();
+      showToast("記録をクリアしました");
+    });
+
+    soundButton.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      updateSoundButton();
+      if (soundEnabled) {
+        unlockAudio().then(playChime);
+      }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && isRunning) tick();
+    });
+
+    updateStats();
+    updateSoundButton();
+    selectMode("work");
+  </script>
+</body>
+</html>
