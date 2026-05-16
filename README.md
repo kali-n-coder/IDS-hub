@@ -5,7 +5,7 @@
 ## Files
 
 - `index.html`: GitHub Pagesで公開するトップページ
-- `admin.html`: ユーザーとツールを管理する画面
+- `admin.html`: ユーザー、ツール、お知らせを管理する画面
 - `firestore.rules`: Firestoreのセキュリティルール
 - `FIREBASE_SETUP.md`: Firestore連携とGitHub Pagesの設定メモ
 
@@ -16,7 +16,7 @@
 - 未ログイン時のコンテンツロック
 - Firestore上のツール、ゲームの検索とカテゴリフィルター
 - ログイン後の外部ツールリンク遷移
-- 管理画面からのユーザー管理、ツール管理
+- 管理画面からのユーザー管理、ツール管理、お知らせ管理
 
 ## Deploy
 

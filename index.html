@@ -28,7 +28,10 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at 18% 8%, rgba(9, 105, 218, .12), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(0, 135, 111, .11), transparent 30%),
+        var(--bg);
       color: var(--ink);
     }
 
@@ -46,7 +49,7 @@
       gap: 18px;
       padding: 14px clamp(16px, 4vw, 42px);
       border-bottom: 1px solid rgba(220, 228, 238, .9);
-      background: rgba(244, 247, 251, .88);
+      background: rgba(255, 255, 255, .88);
       backdrop-filter: blur(14px);
     }
 
@@ -138,7 +141,9 @@
       grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
       overflow: hidden;
       border-radius: var(--radius);
-      background: var(--dark);
+      background:
+        linear-gradient(135deg, rgba(9, 105, 218, .34), rgba(0, 135, 111, .16)),
+        #101b2d;
       box-shadow: var(--shadow);
     }
 
@@ -218,8 +223,90 @@
       position: relative;
       min-height: 430px;
       background:
-        linear-gradient(135deg, rgba(23,34,50,.05), rgba(23,34,50,.78)),
-        url("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1300&q=80") center/cover;
+        linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,0)),
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.18), transparent 34%),
+        rgba(255,255,255,.06);
+    }
+
+    .hero-visual::before,
+    .hero-visual::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.1);
+      box-shadow: 0 18px 44px rgba(0,0,0,.14);
+    }
+
+    .hero-visual::before {
+      left: 30px;
+      top: 92px;
+      width: 190px;
+      height: 214px;
+      background:
+        linear-gradient(#fff 0 0) 20px 22px / 74px 10px no-repeat,
+        linear-gradient(rgba(255,255,255,.46) 0 0) 20px 50px / 142px 8px no-repeat,
+        linear-gradient(rgba(255,255,255,.28) 0 0) 20px 78px / 118px 8px no-repeat,
+        linear-gradient(rgba(255,255,255,.28) 0 0) 20px 106px / 134px 8px no-repeat,
+        linear-gradient(rgba(255,255,255,.28) 0 0) 20px 134px / 104px 8px no-repeat,
+        rgba(255,255,255,.12);
+    }
+
+    .hero-visual::after {
+      left: 66px;
+      bottom: 46px;
+      width: 138px;
+      height: 56px;
+      background:
+        linear-gradient(90deg, #89e3d3, #fff) 16px 17px / 78px 8px no-repeat,
+        linear-gradient(rgba(255,255,255,.32) 0 0) 16px 33px / 104px 7px no-repeat,
+        rgba(255,255,255,.13);
+    }
+
+    .showcase-card {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: min(360px, calc(100% - 48px));
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.9);
+      color: var(--ink);
+      box-shadow: 0 24px 50px rgba(0,0,0,.18);
+    }
+
+    .showcase-card img {
+      width: 128px;
+      height: auto;
+      display: block;
+      margin-bottom: 18px;
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .showcase-stat {
+      padding: 10px;
+      border-radius: var(--radius);
+      background: #f3f7fb;
+    }
+
+    .showcase-stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .showcase-stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
     }
 
     .login-panel {
@@ -230,7 +317,7 @@
       padding: 18px;
       border: 1px solid rgba(255,255,255,.22);
       border-radius: var(--radius);
-      background: rgba(10, 18, 28, .76);
+      background: rgba(10, 18, 28, .82);
       color: #fff;
       backdrop-filter: blur(14px);
     }
@@ -512,11 +599,11 @@
 
     .notice {
       display: grid;
-      gap: 12px;
+      gap: 0;
     }
 
     .notice-item {
-      padding-bottom: 12px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--line);
     }
 
@@ -534,6 +621,10 @@
     .notice p {
       margin: 5px 0 0;
       line-height: 1.65;
+    }
+
+    .notice p strong {
+      color: var(--ink);
     }
 
     .workflow {
@@ -671,7 +762,10 @@
     @media (max-width: 900px) {
       .nav a { display: none; }
       .hero, .two-col { grid-template-columns: 1fr; }
-      .hero-visual { min-height: 320px; }
+      .hero-visual { min-height: auto; padding-bottom: 1px; }
+      .hero-visual::before, .hero-visual::after { display: none; }
+      .showcase-card { position: relative; top: auto; right: auto; width: calc(100% - 40px); margin: 20px; }
+      .login-panel { position: relative; right: auto; bottom: auto; width: calc(100% - 40px); margin: 0 20px 20px; }
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero-points, .workflow { grid-template-columns: 1fr; }
     }
@@ -733,6 +827,14 @@
         </div>
       </div>
       <div class="hero-visual" aria-label="IDS Hubのサービスイメージ">
+        <div class="showcase-card">
+          <img src="assets/ids-logo.png" alt="IDS">
+          <div class="showcase-grid">
+            <div class="showcase-stat"><strong id="heroToolCount">6</strong><span>Contents</span></div>
+            <div class="showcase-stat"><strong>24h</strong><span>Open</span></div>
+            <div class="showcase-stat"><strong>Free</strong><span>Account</span></div>
+          </div>
+        </div>
         <form class="login-panel" id="heroLoginForm">
           <h2>ログインして利用開始</h2>
           <div class="field">
@@ -814,7 +916,7 @@
             <span class="badge">ゲーム</span>
           </div>
           <h3>Typing Sprint</h3>
-          <p>短時間で遊べるタイピングゲーム。スコア保存にも拡張できます。</p>
+          <p>短時間で遊べるタイピングゲーム。集中力のウォームアップに使えます。</p>
           <button class="primary-button" type="button" data-requires-login>開く</button>
         </article>
 
@@ -824,7 +926,7 @@
             <span class="badge">ゲーム</span>
           </div>
           <h3>Logic Blocks</h3>
-          <p>手軽に遊べるロジックパズル。ランキング要素を追加しやすい枠です。</p>
+          <p>手軽に遊べるロジックパズル。休憩時間に頭を切り替えられます。</p>
           <button class="primary-button" type="button" data-requires-login>開く</button>
         </article>
 
@@ -865,13 +967,15 @@
         <div>
           <h2>お知らせ</h2>
         </div>
-        <div class="notice-item">
-          <time datetime="2026-05-16">2026.05.16</time>
-          <p>IDS Hubを公開しました。ツールとゲームは順次追加していきます。</p>
-        </div>
-        <div class="notice-item">
-          <time datetime="2026-05-16">2026.05.16</time>
-          <p>アカウント登録とログインに対応しました。</p>
+        <div id="announcementsList">
+          <div class="notice-item">
+            <time datetime="2026-05-16">2026.05.16</time>
+            <p>IDS Hubを公開しました。ツールとゲームは順次追加していきます。</p>
+          </div>
+          <div class="notice-item">
+            <time datetime="2026-05-16">2026.05.16</time>
+            <p>アカウント登録とログインに対応しました。</p>
+          </div>
         </div>
       </aside>
     </section>
@@ -941,6 +1045,8 @@
     const filterButtons = [...document.querySelectorAll("[data-filter]")];
     const searchInput = document.querySelector("#searchInput");
     const emptyState = document.querySelector("#emptyState");
+    const heroToolCount = document.querySelector("#heroToolCount");
+    const announcementsList = document.querySelector("#announcementsList");
     const modal = document.querySelector("#authModal");
     const authTitle = document.querySelector("#authTitle");
     const authLead = document.querySelector("#authLead");
@@ -958,9 +1064,13 @@
       { name: "JSON Formatter", description: "JSONの整形、圧縮、簡易バリデーションを行うツールです。", category: "tool dev", label: "開発ツール", url: "https://jsonformatter.org/", color: "blue", keywords: "json formatter validate api" },
       { name: "QR Code Maker", description: "URLやテキストをQRコード化して、スマホ共有を簡単にします。", category: "tool utility", label: "日常ツール", url: "https://www.qr-code-generator.com/", color: "green", keywords: "qr code url share" },
       { name: "Base64 Converter", description: "文字列のBase64エンコード、デコードをブラウザで確認できます。", category: "tool dev", label: "開発ツール", url: "https://www.base64decode.org/", color: "dark", keywords: "base64 encode decode text" },
-      { name: "Typing Sprint", description: "短時間で遊べるタイピングゲーム。スコア保存にも拡張できます。", category: "game", label: "ゲーム", url: "https://monkeytype.com/", color: "yellow", keywords: "typing game speed" },
-      { name: "Logic Blocks", description: "手軽に遊べるロジックパズル。ランキング要素を追加しやすい枠です。", category: "game", label: "ゲーム", url: "https://www.puzzle-nurikabe.com/", color: "red", keywords: "puzzle logic block" },
+      { name: "Typing Sprint", description: "短時間で遊べるタイピングゲーム。集中力のウォームアップに使えます。", category: "game", label: "ゲーム", url: "https://monkeytype.com/", color: "yellow", keywords: "typing game speed" },
+      { name: "Logic Blocks", description: "手軽に遊べるロジックパズル。休憩時間に頭を切り替えられます。", category: "game", label: "ゲーム", url: "https://www.puzzle-nurikabe.com/", color: "red", keywords: "puzzle logic block" },
       { name: "Quick Memo", description: "思いついた内容をすぐ残せるメモツールです。作業中の小さな記録に使えます。", category: "tool utility", label: "日常ツール", url: "https://keep.google.com/", color: "green", keywords: "memo note template" }
+    ];
+    const fallbackAnnouncements = [
+      { title: "IDS Hubを公開しました", body: "便利なツールとゲームを順次追加していきます。", publishedAt: "2026-05-16" },
+      { title: "アカウント登録に対応しました", body: "無料登録後、Hub内のコンテンツを利用できます。", publishedAt: "2026-05-16" }
     ];
 
     function showToast(message) {
@@ -1021,8 +1131,35 @@
       }[char]));
     }
 
+    function toDateValue(value) {
+      if (!value) return new Date();
+      if (typeof value.toDate === "function") return value.toDate();
+      return new Date(value);
+    }
+
+    function formatDate(value) {
+      const date = toDateValue(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", ".");
+    }
+
+    function renderAnnouncements(items) {
+      const visibleItems = items.filter((item) => item.enabled !== false).slice(0, 5);
+      announcementsList.innerHTML = visibleItems.map((item) => {
+        const date = formatDate(item.publishedAt || item.createdAt);
+
+        return `
+          <div class="notice-item">
+            <time datetime="${escapeHtml(date.replaceAll(".", "-"))}">${escapeHtml(date)}</time>
+            <p><strong>${escapeHtml(item.title)}</strong><br>${escapeHtml(item.body)}</p>
+          </div>
+        `;
+      }).join("");
+    }
+
     function renderTools(tools) {
       toolUrls = {};
+      heroToolCount.textContent = String(tools.length);
       toolGrid.innerHTML = tools.map((tool) => {
         const color = ["green", "yellow", "red", "dark"].includes(tool.color) ? tool.color : "";
         toolUrls[tool.name] = tool.url || "#";
@@ -1061,6 +1198,24 @@
       } catch (error) {
         console.warn("Failed to load tools, using fallback tools.", error);
         renderTools(fallbackTools);
+      }
+    }
+
+    async function loadAnnouncements() {
+      try {
+        const snapshot = await getDocs(collection(db, "announcements"));
+        const announcements = snapshot.docs
+          .map((item) => ({ id: item.id, ...item.data() }))
+          .filter((item) => item.enabled !== false)
+          .sort((a, b) => {
+            const orderDiff = Number(a.order || 999) - Number(b.order || 999);
+            if (orderDiff !== 0) return orderDiff;
+            return toDateValue(b.publishedAt || b.createdAt) - toDateValue(a.publishedAt || a.createdAt);
+          });
+        renderAnnouncements(announcements.length ? announcements : fallbackAnnouncements);
+      } catch (error) {
+        console.warn("Failed to load announcements, using fallback announcements.", error);
+        renderAnnouncements(fallbackAnnouncements);
       }
     }
 
@@ -1221,7 +1376,8 @@
 
     setAuthMode("login");
     loadTools();
-    const savedUser = sessionStorage.getItem("idsHubUser") || sessionStorage.getItem("idmHubUser");
+    loadAnnouncements();
+    const savedUser = sessionStorage.getItem("idsHubUser");
     if (savedUser) {
       setLoggedIn(JSON.parse(savedUser));
     }

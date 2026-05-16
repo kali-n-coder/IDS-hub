@@ -89,6 +89,20 @@ users
 }
 ```
 
+お知らせは `announcements` コレクションで管理します。トップページには公開中のお知らせだけが表示され、管理画面から追加・編集・停止・削除できます。
+
+```js
+{
+  title: "IDS Hubを公開しました",
+  body: "便利なツールとミニゲームを順次追加していきます。",
+  enabled: true,
+  order: 1,
+  publishedAt: serverTimestamp(),
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp()
+}
+```
+
 ## Base64変換の例
 
 日本語や記号を含む可能性を考え、ブラウザ側では次のように変換します。
@@ -193,7 +207,7 @@ async function login({ email, password }) {
 firebase deploy --only firestore:rules --project idm-hub-20260516
 ```
 
-管理画面追加に伴い、現在のルールではブラウザから `users` と `tools` の管理操作ができるようにしています。Firebase AuthenticationなしではFirestore Rulesだけで管理者本人を安全に判定できないため、この構成はプロトタイプ用途です。本番運用前に、管理操作はCloud Functionsなどサーバー側に移してください。
+管理画面追加に伴い、現在のルールではブラウザから `users`、`tools`、`announcements` の管理操作ができるようにしています。Firebase AuthenticationなしではFirestore Rulesだけで管理者本人を安全に判定しにくいため、公開規模が大きくなる前に管理操作はCloud Functionsなどサーバー側に移してください。
 
 ## GitHub Pages
 
