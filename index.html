@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IDM Hub</title>
+  <title>IDS Hub</title>
   <style>
     :root {
       color-scheme: light;
@@ -620,8 +620,8 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#">
-      <span class="brand-mark">IDM</span>
-      <span>IDM Hub<br>Tools and Games</span>
+      <span class="brand-mark">IDS</span>
+      <span>IDS Hub<br>Tools and Games</span>
     </a>
     <nav class="nav" aria-label="メインメニュー">
       <a href="#tools">ツール</a>
@@ -643,7 +643,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Public beta</p>
         <h1>便利ツールとミニゲームを、ひとつのHubに。</h1>
-        <p>IDM Hubは、日常で使える小さなWebツールや気軽に遊べるゲームをまとめた公開サービスです。アカウント登録後に、各コンテンツを利用できます。</p>
+        <p>IDS Hubは、日常で使える小さなWebツールや気軽に遊べるゲームをまとめた公開サービスです。アカウント登録後に、各コンテンツを利用できます。</p>
         <div class="hero-actions">
           <button class="primary-button" type="button" data-auth-open="signup">
             <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
@@ -655,7 +655,7 @@
           </a>
         </div>
       </div>
-      <div class="hero-visual" aria-label="IDM Hubのサービスイメージ">
+      <div class="hero-visual" aria-label="IDS Hubのサービスイメージ">
         <form class="login-panel" id="heroLoginForm">
           <h2>ログインして利用開始</h2>
           <div class="field">
@@ -782,7 +782,7 @@
         </div>
         <div class="notice-item">
           <time datetime="2026-05-16">2026.05.16</time>
-          <p>IDM Hubの公開向けプロトタイプを作成しました。</p>
+          <p>IDS Hubの公開向けプロトタイプを作成しました。</p>
         </div>
         <div class="notice-item">
           <time datetime="2026-05-16">2026.05.16</time>
@@ -806,7 +806,7 @@
       <form id="authForm">
         <div class="field">
           <label for="authName">表示名</label>
-          <input id="authName" name="name" type="text" autocomplete="name" placeholder="IDMユーザー">
+          <input id="authName" name="name" type="text" autocomplete="name" placeholder="IDSユーザー">
         </div>
         <div class="field">
           <label for="authEmail">メールアドレス</label>
@@ -937,7 +937,7 @@
 
     function setLoggedIn(user) {
       currentUser = user;
-      sessionStorage.setItem("idmHubUser", JSON.stringify(user));
+      sessionStorage.setItem("idsHubUser", JSON.stringify(user));
       document.body.classList.add("is-logged-in");
       document.querySelectorAll(".card.locked").forEach((card) => card.classList.remove("locked"));
       document.querySelector(".locked-banner span").textContent = `${user.name || user.email} としてログイン中です。コンテンツを利用できます。`;
@@ -1067,7 +1067,7 @@
     });
 
     setAuthMode("login");
-    const savedUser = sessionStorage.getItem("idmHubUser");
+    const savedUser = sessionStorage.getItem("idsHubUser") || sessionStorage.getItem("idmHubUser");
     if (savedUser) {
       setLoggedIn(JSON.parse(savedUser));
     }

@@ -1,4 +1,4 @@
-# IDM Hub
+# IDS Hub
 
 便利ツールやミニゲームをまとめる一般公開向けHubサイトです。
 
@@ -25,6 +25,8 @@ Firebase Hosting project:
 ```text
 idm-hub-20260516
 ```
+
+Note: FirebaseのプロジェクトIDと公開URLは作成済み識別子のため `idm-hub-20260516` のままです。サービス表示名は `IDS Hub` に修正済みです。
 
 URL:
 
