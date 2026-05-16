@@ -188,9 +188,9 @@ firebase deploy --only hosting --project idm-hub-20260516
 
 ## GitHub Pages
 
-現リポジトリ名は `kali-n-coder/IDM-hub` のままです。GitHub上でリポジトリ名を変更する場合は、`IDS-hub` などにrenameした後、ローカルのremote URLも更新してください。
+現リポジトリ名は `kali-n-coder/IDS-hub` です。
 
-1. GitHubのリポジトリ `kali-n-coder/IDM-hub` を開く
+1. GitHubのリポジトリ `kali-n-coder/IDS-hub` を開く
 2. `Settings` を開く
 3. `Pages` を開く
 4. `Build and deployment` の `Source` を `Deploy from a branch` にする
