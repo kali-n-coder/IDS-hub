@@ -180,6 +180,34 @@
       gap: 10px;
     }
 
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 620px;
+    }
+
+    .hero-point {
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.07);
+    }
+
+    .hero-point strong {
+      display: block;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .hero-point span {
+      display: block;
+      margin-top: 3px;
+      color: #c4d4e4;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .hero .ghost-button {
       border-color: rgba(255,255,255,.26);
       background: rgba(255,255,255,.08);
@@ -250,6 +278,22 @@
       color: #b8c9db;
       font-size: 12px;
       line-height: 1.65;
+    }
+
+    .login-support {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+      color: #c8d7e8;
+      font-size: 12px;
+    }
+
+    .login-support a {
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
     }
 
     .section {
@@ -492,6 +536,33 @@
       line-height: 1.65;
     }
 
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .workflow-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfe;
+    }
+
+    .workflow-item strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+
+    .workflow-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
     .empty {
       display: none;
       padding: 24px;
@@ -602,6 +673,7 @@
       .hero, .two-col { grid-template-columns: 1fr; }
       .hero-visual { min-height: 320px; }
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-points, .workflow { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 620px) {
@@ -643,7 +715,12 @@
       <div class="hero-copy">
         <p class="eyebrow">Public beta</p>
         <h1>便利ツールとミニゲームを、ひとつのHubに。</h1>
-        <p>IDS Hubは、日常で使える小さなWebツールや気軽に遊べるゲームをまとめた公開サービスです。アカウント登録後に、各コンテンツを利用できます。</p>
+        <p>IDS Hubは、作業に役立つWebツールと短時間で遊べるゲームをまとめたポータルです。気になるコンテンツを探して、ログイン後すぐに利用できます。</p>
+        <div class="hero-points" aria-label="IDS Hubの特徴">
+          <div class="hero-point"><strong>Tools</strong><span>日常と開発をサポート</span></div>
+          <div class="hero-point"><strong>Games</strong><span>すきま時間に遊べる</span></div>
+          <div class="hero-point"><strong>Account</strong><span>自分用の入口をキープ</span></div>
+        </div>
         <div class="hero-actions">
           <button class="primary-button" type="button" data-auth-open="signup">
             <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
@@ -667,7 +744,10 @@
             <input id="heroPassword" name="password" type="password" autocomplete="current-password" placeholder="8文字以上" required>
           </div>
           <button class="primary-button" type="submit">ログイン</button>
-          <p class="login-note">このHTMLではFirebase接続を入れていません。接続後はFirestoreのユーザーデータと照合する実装に差し替えてください。</p>
+          <div class="login-support">
+            <span>初めての方は無料登録から始められます。</span>
+            <a href="#" data-auth-open="signup">登録する</a>
+          </div>
         </form>
       </div>
     </section>
@@ -676,7 +756,7 @@
       <div class="section-head">
         <div>
           <h2>利用できるコンテンツ</h2>
-          <p>未ログイン状態ではプレビューのみ表示します。実際のリンク遷移はログイン判定後に有効化する想定です。</p>
+          <p>ツールやゲームは随時追加されます。検索やカテゴリで、今使いたいものをすばやく見つけられます。</p>
         </div>
         <div class="search-wrap" role="search">
           <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
@@ -693,7 +773,7 @@
       </div>
 
       <div class="locked-banner">
-        <span>コンテンツの利用にはアカウント登録が必要です。ログイン後にカードの「開く」ボタンを有効化します。</span>
+        <span>コンテンツの利用にはアカウント登録が必要です。ログインすると各カードから直接開けます。</span>
         <button class="ghost-button" type="button" data-auth-open="signup">登録する</button>
       </div>
 
@@ -754,7 +834,7 @@
             <span class="badge">日常ツール</span>
           </div>
           <h3>Quick Memo</h3>
-          <p>ブラウザ上でメモを作成し、あとでクラウド保存に対応する想定です。</p>
+          <p>思いついた内容をすぐ残せるメモツールです。作業中の小さな記録に使えます。</p>
           <button class="primary-button" type="button" data-requires-login>開く</button>
         </article>
       </div>
@@ -765,15 +845,20 @@
       <div class="panel">
         <div class="section-head">
           <div>
-            <h2>サービス設計</h2>
-            <p>一般公開に合わせ、登録とログインを前提にした導線へ変更しています。</p>
+            <h2>IDS Hubでできること</h2>
+            <p>よく使うWebツールと息抜きのゲームを、迷わず開ける場所にまとめています。</p>
           </div>
         </div>
         <ul class="feature-list">
-          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg><span><strong>未ログイン制御</strong>カードは見せつつ、利用開始時にログインを求める構成です。</span></li>
-          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg><span><strong>Firebase差し替え前提</strong>このHTMLではダミー処理のみ。Firestore連携を後から追加できます。</span></li>
-          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg><span><strong>静的公開対応</strong>GitHub PagesとFirebase Hostingのどちらにも配置しやすい単体構成です。</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg><span><strong>探しやすい</strong>カテゴリと検索で、目的のコンテンツへすぐアクセスできます。</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg><span><strong>増やしやすい</strong>管理画面から新しいツールやゲームを追加できます。</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg><span><strong>使いやすい</strong>PCでもスマートフォンでも、カードから迷わず開ける画面です。</span></li>
         </ul>
+        <div class="workflow">
+          <div class="workflow-item"><strong>1. 見つける</strong><p>一覧、検索、カテゴリから気になるコンテンツを選びます。</p></div>
+          <div class="workflow-item"><strong>2. ログイン</strong><p>アカウントでログインすると、利用ボタンが有効になります。</p></div>
+          <div class="workflow-item"><strong>3. 開く</strong><p>カードのボタンから、そのままツールやゲームへ移動できます。</p></div>
+        </div>
       </div>
 
       <aside class="panel notice" id="news">
@@ -782,11 +867,11 @@
         </div>
         <div class="notice-item">
           <time datetime="2026-05-16">2026.05.16</time>
-          <p>IDS Hubの公開向けプロトタイプを作成しました。</p>
+          <p>IDS Hubを公開しました。ツールとゲームは順次追加していきます。</p>
         </div>
         <div class="notice-item">
           <time datetime="2026-05-16">2026.05.16</time>
-          <p>Firebase設定は別途追加する想定で、現在はHTML内の仮処理のみです。</p>
+          <p>アカウント登録とログインに対応しました。</p>
         </div>
       </aside>
     </section>
@@ -875,7 +960,7 @@
       { name: "Base64 Converter", description: "文字列のBase64エンコード、デコードをブラウザで確認できます。", category: "tool dev", label: "開発ツール", url: "https://www.base64decode.org/", color: "dark", keywords: "base64 encode decode text" },
       { name: "Typing Sprint", description: "短時間で遊べるタイピングゲーム。スコア保存にも拡張できます。", category: "game", label: "ゲーム", url: "https://monkeytype.com/", color: "yellow", keywords: "typing game speed" },
       { name: "Logic Blocks", description: "手軽に遊べるロジックパズル。ランキング要素を追加しやすい枠です。", category: "game", label: "ゲーム", url: "https://www.puzzle-nurikabe.com/", color: "red", keywords: "puzzle logic block" },
-      { name: "Quick Memo", description: "ブラウザ上でメモを作成し、あとでクラウド保存に対応する想定です。", category: "tool utility", label: "日常ツール", url: "https://keep.google.com/", color: "green", keywords: "memo note template" }
+      { name: "Quick Memo", description: "思いついた内容をすぐ残せるメモツールです。作業中の小さな記録に使えます。", category: "tool utility", label: "日常ツール", url: "https://keep.google.com/", color: "green", keywords: "memo note template" }
     ];
 
     function showToast(message) {
@@ -1003,6 +1088,10 @@
         button.textContent = "ログイン中";
         button.disabled = true;
       });
+      document.querySelectorAll("[data-auth-open='signup']").forEach((button) => {
+        button.textContent = "利用中";
+        button.disabled = true;
+      });
       closeModal();
     }
 
@@ -1068,7 +1157,11 @@
     searchInput.addEventListener("input", applyFilters);
 
     document.querySelectorAll("[data-auth-open]").forEach((button) => {
-      button.addEventListener("click", () => openModal(button.dataset.authOpen));
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (button.disabled) return;
+        openModal(button.dataset.authOpen);
+      });
     });
 
     function bindToolButtons() {

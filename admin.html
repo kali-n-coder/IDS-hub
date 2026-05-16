@@ -51,6 +51,10 @@
     p { color: var(--muted); line-height: 1.7; }
 
     .grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 16px; align-items: start; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .summary-item { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: #fbfcfe; }
+    .summary-item strong { display: block; font-size: 28px; line-height: 1; }
+    .summary-item span { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; font-weight: 800; }
     .panel {
       padding: 18px;
       border: 1px solid var(--line);
@@ -108,11 +112,10 @@
     .hidden { display: none !important; }
     .toast { position: fixed; right: 18px; bottom: 18px; z-index: 20; max-width: 340px; padding: 12px 14px; border-radius: var(--radius); background: var(--dark); color: #fff; box-shadow: var(--shadow); opacity: 0; transform: translateY(80px); transition: .2s ease; }
     .toast.show { opacity: 1; transform: translateY(0); }
-    .warning { border-color: #f0d18a; background: #fff8e7; color: #644500; box-shadow: none; }
-    .warning p { margin: 0; color: #644500; }
 
     @media (max-width: 860px) {
       .grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
       .hero { align-items: flex-start; flex-direction: column; }
       table { display: block; overflow-x: auto; white-space: nowrap; }
     }
@@ -134,12 +137,8 @@
     <section class="hero">
       <div>
         <h1>管理画面</h1>
-        <p>ユーザーとツールをFirestore上で管理します。</p>
+        <p>ユーザーと掲載コンテンツをまとめて管理できます。</p>
       </div>
-    </section>
-
-    <section class="panel warning">
-      <p>Firebase Authenticationを使わない構成のため、この管理画面はプロトタイプ向けです。公開運用ではCloud Functionsなどサーバー側の管理APIへ移すことを推奨します。</p>
     </section>
 
     <section class="grid" style="margin-top: 16px;">
@@ -157,6 +156,11 @@
       </form>
 
       <section class="panel hidden" id="dashboard">
+        <div class="summary-grid" aria-label="管理サマリー">
+          <div class="summary-item"><strong id="toolTotal">0</strong><span>公開コンテンツ</span></div>
+          <div class="summary-item"><strong id="userTotal">0</strong><span>登録ユーザー</span></div>
+          <div class="summary-item"><strong id="adminTotal">0</strong><span>管理者</span></div>
+        </div>
         <div class="tabs">
           <button class="button tab active" type="button" data-view="toolsView">ツール</button>
           <button class="button tab" type="button" data-view="usersView">ユーザー</button>
@@ -329,6 +333,9 @@
 
       users = userSnapshot.docs.map((item) => ({ id: item.id, ...item.data() })).sort((a, b) => a.email.localeCompare(b.email));
       tools = toolSnapshot.docs.map((item) => ({ id: item.id, ...item.data() })).sort((a, b) => Number(a.order || 999) - Number(b.order || 999));
+      document.querySelector("#toolTotal").textContent = String(tools.filter((tool) => tool.enabled !== false).length);
+      document.querySelector("#userTotal").textContent = String(users.length);
+      document.querySelector("#adminTotal").textContent = String(users.filter((user) => user.role === "admin").length);
       renderUsers();
       renderTools();
     }
