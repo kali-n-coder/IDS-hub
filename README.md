@@ -11,6 +11,7 @@
 - `firestore.rules`: Firestoreのセキュリティルール
 - `FIREBASE_SETUP.md`: Firestore連携とGitHub Pagesの設定メモ
 - `TOOL_GAME_IDEAS.md`: 今後追加したいツール・ゲーム案
+- `STOCK_GAME_LINKING.md`: 投資ゲームとのアカウント連携メモ
 
 ## Current State
 
@@ -21,6 +22,7 @@
 - ログイン後の外部ツールリンク遷移
 - 管理画面からのユーザー管理、ツール管理、お知らせ管理
 - QRコード生成、メモ帳、タイピング、タイマー、文字数カウンター、数独、クイズ、おみくじを追加
+- 投資ゲームとIDS Hubアカウントを同じメールアドレスで紐づける連携導線
 
 ## Deploy
 

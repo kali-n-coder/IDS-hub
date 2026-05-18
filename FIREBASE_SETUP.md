@@ -67,11 +67,21 @@ users
   email: "user@example.com",
   passwordBase64: "cGFzc3dvcmQxMjM=",
   enabled: true,
+  linkedApps: {
+    stockGame: {
+      linked: true,
+      linkedEmail: "user@example.com",
+      displayName: "IDSユーザー",
+      lastOpenedAt: serverTimestamp()
+    }
+  },
   createdAt: serverTimestamp(),
   updatedAt: serverTimestamp(),
   lastLoginAt: serverTimestamp()
 }
 ```
+
+`linkedApps` は外部サービス連携時に追加されます。新規登録時点では空でも問題ありません。
 
 ツールは `tools` コレクションで管理します。管理画面から追加・編集・停止・削除できます。
 

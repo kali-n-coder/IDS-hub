@@ -1060,6 +1060,7 @@
     let currentUser = null;
 
     let toolUrls = {};
+    let toolRegistry = {};
     const fallbackTools = [
       { name: "JSON Formatter", description: "JSONの整形、圧縮、簡易バリデーションを行うツールです。", category: "tool dev", label: "開発ツール", url: "https://jsonformatter.org/", color: "blue", keywords: "json formatter validate api" },
       { name: "QR Code Maker", description: "URLやテキストをQRコード化して、スマホ共有を簡単にします。", category: "tool utility", label: "日常ツール", url: "https://www.qr-code-generator.com/", color: "green", keywords: "qr code url share" },
@@ -1159,10 +1160,12 @@
 
     function renderTools(tools) {
       toolUrls = {};
+      toolRegistry = {};
       heroToolCount.textContent = String(tools.length);
       toolGrid.innerHTML = tools.map((tool) => {
         const color = ["green", "yellow", "red", "dark"].includes(tool.color) ? tool.color : "";
         toolUrls[tool.name] = tool.url || "#";
+        toolRegistry[tool.name] = tool;
 
         return `
           <article class="card locked" data-category="${escapeHtml(tool.category)}" data-keywords="${escapeHtml(tool.keywords || "")}">
@@ -1225,6 +1228,49 @@
 
     function toBase64(value) {
       return btoa(unescape(encodeURIComponent(value)));
+    }
+
+    function isStockGameTool(tool) {
+      const url = String(tool?.url || "");
+      return tool?.integrationKey === "stockGame" || tool?.id === "tool-1778903921054" || url.includes("game-manager.github.io/stock_sim");
+    }
+
+    function buildStockGameUrl(tool) {
+      const url = new URL(tool.url || "https://game-manager.github.io/stock_sim/");
+      url.searchParams.set("hub", "ids");
+      url.searchParams.set("hubEmail", currentUser.email || "");
+      url.searchParams.set("hubName", currentUser.name || currentUser.email || "");
+      url.searchParams.set("hubReturnUrl", location.href.split("#")[0]);
+      return url.toString();
+    }
+
+    async function markStockGameLinked() {
+      if (!currentUser?.email) return;
+      const userRef = doc(db, "users", normalizeEmail(currentUser.email));
+      await updateDoc(userRef, {
+        "linkedApps.stockGame.linked": true,
+        "linkedApps.stockGame.linkedEmail": normalizeEmail(currentUser.email),
+        "linkedApps.stockGame.displayName": currentUser.name || "",
+        "linkedApps.stockGame.lastOpenedAt": serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    function openToolFromCard(title) {
+      const tool = toolRegistry[title] || { name: title, url: toolUrls[title] || "#" };
+      let url = tool.url || "#";
+
+      if (isStockGameTool(tool)) {
+        url = buildStockGameUrl(tool);
+        markStockGameLinked()
+          .then(() => showToast("投資ゲームとHubアカウントを同じメールで連携します。"))
+          .catch((error) => {
+            console.warn("Failed to mark stock game link.", error);
+            showToast("投資ゲームを開きます。連携状態の保存はあとで再試行してください。");
+          });
+      }
+
+      window.open(url, "_blank", "noopener,noreferrer");
     }
 
     function setLoading(isLoading) {
@@ -1329,7 +1375,7 @@
           }
 
           const title = button.closest(".card").querySelector("h3").textContent.trim();
-          window.open(toolUrls[title] || "#", "_blank", "noopener,noreferrer");
+          openToolFromCard(title);
         });
       });
     }
