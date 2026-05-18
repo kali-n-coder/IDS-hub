@@ -1016,6 +1016,7 @@
     let currentUser = null;
 
     let toolUrls = {};
+    let toolRegistry = {};
     const fallbackTools = [
       { name: "JSON Formatter", description: "JSON\u306e\u6574\u5f62\u3001\u5727\u7e2e\u3001\u7c21\u6613\u30d0\u30ea\u30c7\u30fc\u30b7\u30e7\u30f3\u3092\u884c\u3046\u30c4\u30fc\u30eb\u3067\u3059\u3002", category: "tool dev", label: "\u958b\u767a\u30c4\u30fc\u30eb", url: "https://jsonformatter.org/", color: "blue", keywords: "json formatter validate api" },
       { name: "QR Code Maker", description: "URL\u3084\u30c6\u30ad\u30b9\u30c8\u3092QR\u30b3\u30fc\u30c9\u5316\u3057\u3066\u3001\u30b9\u30de\u30db\u5171\u6709\u3092\u7c21\u5358\u306b\u3057\u307e\u3059\u3002", category: "tool utility", label: "\u65e5\u5e38\u30c4\u30fc\u30eb", url: "https://www.qr-code-generator.com/", color: "green", keywords: "qr code url share" },
@@ -1138,10 +1139,12 @@
 
     function renderTools(tools) {
       toolUrls = {};
+      toolRegistry = {};
       heroToolCount.textContent = String(tools.length);
       toolGrid.innerHTML = tools.map((tool) => {
         const color = ["green", "yellow", "red", "dark"].includes(tool.color) ? tool.color : "";
         toolUrls[tool.name] = tool.url || "#";
+        toolRegistry[tool.name] = tool;
         return '<article class="card locked" data-category="' + escapeHtml(tool.category) + '" data-keywords="' + escapeHtml(tool.keywords || "") + '"><div class="card-top"><div class="tool-icon ' + escapeHtml(color) + '"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"></path><path d="M8 9h8"></path><path d="M8 13h5"></path></svg></div><span class="badge">' + escapeHtml(tool.label || "\u30c4\u30fc\u30eb") + '</span></div><h3>' + escapeHtml(tool.name) + '</h3><p>' + escapeHtml(tool.description) + '</p><button class="primary-button" type="button" data-requires-login>\u958b\u304f</button></article>';
       }).join("");
 
@@ -1191,6 +1194,49 @@
 
     function toBase64(value) {
       return btoa(unescape(encodeURIComponent(value)));
+    }
+
+    function isStockGameTool(tool) {
+      const url = String(tool?.url || "");
+      return tool?.integrationKey === "stockGame" || tool?.id === "tool-1778903921054" || url.includes("game-manager.github.io/stock_sim");
+    }
+
+    function buildStockGameUrl(tool) {
+      const url = new URL(tool.url || "https://game-manager.github.io/stock_sim/");
+      url.searchParams.set("hub", "ids");
+      url.searchParams.set("hubEmail", currentUser.email || "");
+      url.searchParams.set("hubName", currentUser.name || currentUser.email || "");
+      url.searchParams.set("hubReturnUrl", location.href.split("#")[0]);
+      return url.toString();
+    }
+
+    async function markStockGameLinked() {
+      if (!currentUser?.email) return;
+      const userRef = doc(db, "users", normalizeEmail(currentUser.email));
+      await updateDoc(userRef, {
+        "linkedApps.stockGame.linked": true,
+        "linkedApps.stockGame.linkedEmail": normalizeEmail(currentUser.email),
+        "linkedApps.stockGame.displayName": currentUser.name || "",
+        "linkedApps.stockGame.lastOpenedAt": serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    function openToolFromCard(title) {
+      const tool = toolRegistry[title] || { name: title, url: toolUrls[title] || "#" };
+      let url = tool.url || "#";
+
+      if (isStockGameTool(tool)) {
+        url = buildStockGameUrl(tool);
+        markStockGameLinked()
+          .then(() => showToast("\u6295\u8cc7\u30b2\u30fc\u30e0\u3068Hub\u30a2\u30ab\u30a6\u30f3\u30c8\u3092\u540c\u3058\u30e1\u30fc\u30eb\u3067\u9023\u643a\u3057\u307e\u3059\u3002"))
+          .catch((error) => {
+            console.warn("Failed to mark stock game link.", error);
+            showToast("\u6295\u8cc7\u30b2\u30fc\u30e0\u3092\u958b\u304d\u307e\u3059\u3002\u9023\u643a\u72b6\u614b\u306e\u4fdd\u5b58\u306f\u3042\u3068\u3067\u518d\u8a66\u884c\u3057\u3066\u304f\u3060\u3055\u3044\u3002");
+          });
+      }
+
+      window.open(url, "_blank", "noopener,noreferrer");
     }
 
     function setLoading(isLoading) {
@@ -1302,7 +1348,7 @@
             return;
           }
           const title = button.closest(".card").querySelector("h3").textContent.trim();
-          window.open(toolUrls[title] || "#", "_blank", "noopener,noreferrer");
+          openToolFromCard(title);
         });
       });
     }
